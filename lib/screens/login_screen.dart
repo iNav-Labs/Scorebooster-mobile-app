@@ -1,5 +1,4 @@
 // login_screen.dart
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -321,7 +320,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Builds the submit button
   Widget _buildSubmitButton(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) => setState(() => _submitButtonScale = 0.95),
@@ -349,38 +347,36 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         // Show loading indicator
-        setState(() {
-          _isLoadingSubmit = true; // Set loading state
-        });
+        setState(() => _isLoadingSubmit = true);
 
-        // Hide loading indicator
-        setState(() {
-          _isLoadingSubmit = false; // Reset loading state
-        });
-
-        // Navigate to HomeScreen on success, show error on failure
-        if (true) {
-          //TODO add the logic for the submit button add the shared variables for the login
+        try {
+          // Save user data
           final prefs = await SharedPreferences.getInstance();
-          _registerUser();
+          await prefs.setString('name', _nameController.text);
+          await prefs.setString('phone', _phoneController.text);
+
+          // Register user (if async, ensure it completes)
+          await _registerUser();
+
           if (kDebugMode) {
             print('User data saved successfully.');
             print('Name: ${_nameController.text}');
             print('Phone: ${_phoneController.text}');
-            print(prefs.get('phone'));
-            print(prefs.get('name'));
+            print('Saved Name: ${prefs.getString('name')}');
+            print('Saved Phone: ${prefs.getString('phone')}');
           }
+
+          // Navigate to HomeScreen
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => MainScreen()),
           );
-        } else {
+        } catch (error) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Error'),
-              content:
-                  const Text('Failed to save customer data. Please try again.'),
+              content: Text('Failed to save customer data. Error: $error'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -389,6 +385,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
           );
+        } finally {
+          setState(() => _isLoadingSubmit = false);
         }
       },
       onTapCancel: () => setState(() => _submitButtonScale = 1.0),
