@@ -1,0 +1,2 @@
+/home/scar/Documents/client/v1/scorebooster/android/app/.cxx/Debug/4n3t3xa3/x86/CMakeFiles/edit_cache.dir
+/home/scar/Documents/client/v1/scorebooster/android/app/.cxx/Debug/4n3t3xa3/x86/CMakeFiles/rebuild_cache.dir

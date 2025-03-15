@@ -1,0 +1,1 @@
+/home/scar/Documents/client/v1/scorebooster/build/app/intermediates/cxx/Debug/4n3t3xa3/obj/arm64-v8a
