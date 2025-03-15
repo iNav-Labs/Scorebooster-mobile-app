@@ -15,10 +15,8 @@ admin.initializeApp({
 });
 
 // MongoDB connection
-const mongoUri =
-  process.env.MONGO_URI ||
-  "mongodb+srv://dev:sInrYpoYYNqB2oGZ@cluster0.sysvjex.mongodb.net/scorebooster?retryWrites=true&w=majority&appName=Cluster0";
-const dbName = process.env.DB_NAME || "scorebooster";
+const mongoUri = process.env.MONGO_URI;
+const dbName = process.env.DB_NAME;
 
 // Create Express app
 const app = express();
@@ -604,7 +602,7 @@ app.put(
 );
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 async function startServer() {
   await connectToMongo();
