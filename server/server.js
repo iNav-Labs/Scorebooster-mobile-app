@@ -8,8 +8,13 @@ const dotenv = require("dotenv");
 // Load environment variables
 dotenv.config();
 
-// Initialize Firebase Admin SDK for token verification
-const serviceAccount = require("./scorebooster-d4dba-firebase-adminsdk-fbsvc-addb28d5f9.json");
+// Decode Base64 to JSON
+const serviceAccount = JSON.parse(
+  Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString(
+    "utf-8"
+  )
+);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
