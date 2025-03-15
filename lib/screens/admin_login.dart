@@ -24,124 +24,165 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange, // Orange background
+      backgroundColor: Colors.orange.shade700, // Improved orange shade
       appBar: AppBar(
-        // Added AppBar
-        backgroundColor: Colors.orange, // Match app bar color to background
-        elevation: 0, // Remove shadow
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          // Back button
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back
-          },
+          onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(''), // Empty title to remove default title
-        centerTitle: true,
       ),
       body: Center(
         child: SingleChildScrollView(
-          // Added SingleChildScrollView
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Logo
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
                 ),
-                padding: EdgeInsets.all(
-                    8.0), // Optional: Add padding around the image
+                padding: const EdgeInsets.all(8.0),
                 child: Image.asset(
-                  'assets/sb_logo.png', // Replace with your logo path
-                  height: 60, // Adjust size as needed
+                  'assets/sb_logo.png',
+                  height: 60,
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Title
               Text(
                 'Admin Login',
                 style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  labelStyle: GoogleFonts.poppins(color: Colors.white70),
-                  border: OutlineInputBorder(),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white70),
-                  ),
-                  prefixIcon: const Icon(Icons.person, color: Colors.white70),
-                ),
-                style: GoogleFonts.poppins(color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: GoogleFonts.poppins(color: Colors.white70),
-                  border: const OutlineInputBorder(),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white70),
-                  ),
-                  prefixIcon: const Icon(Icons.lock, color: Colors.white70),
-                ),
-                style: GoogleFonts.poppins(color: Colors.white),
-              ),
               const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.orange,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  textStyle: GoogleFonts.poppins(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+
+              // Login Card
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 5,
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      // Username Field
+                      TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          prefixIcon:
+                              const Icon(Icons.person, color: Colors.orange),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Password Field
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon:
+                              const Icon(Icons.lock, color: Colors.orange),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            textStyle: GoogleFonts.poppins(fontSize: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            String username = _usernameController.text;
+                            String password = _passwordController.text;
+
+                            if (username == "admin" && password == "1234") {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AdminMainScreen()),
+                              );
+                              if (kDebugMode) print('Login Successful');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Invalid Credentials!',
+                                    style: GoogleFonts.poppins(),
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text('Login'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                onPressed: () {
-                  // TODO: Implement admin authentication logic here
-                  String username = _usernameController.text;
-                  String password = _passwordController.text;
-
-                  // For demonstration purposes (replace with actual authentication)
-                  if (username == "admin" && password == "1234") {
-                    // Navigate to admin area
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AdminMainScreen()),
-                    );
-                    if (kDebugMode) {
-                      print('Login Successful');
-                    } // Replace with navigation
-                  } else {
-                    // Show error message
-                    if (kDebugMode) {
-                      print('Login Failed');
-                    } // Replace with error display
-                  }
-                },
-                child: const Text('Submit'),
               ),
+
+              const SizedBox(height: 50),
+
+              // Footer
+              _buildFooter(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Made with ',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Icon(Icons.favorite, color: Colors.red, size: 14),
+          Text(
+            ' by RebelMinds',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
