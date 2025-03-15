@@ -121,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     'By Signing in you are agreeing to our Terms and Conditions and Policies.',
                     style: GoogleFonts.poppins(
                       fontSize: 10,
-                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.5),
                     ),
                     textAlign: TextAlign.center,
@@ -131,17 +130,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           Positioned(
-            bottom: 30,
+            bottom: 250,
             left: 0,
             right: 0,
             child: InkWell(
-              // Use InkWell for tappable effect
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          AdminLoginScreen()), // Replace AdminLoginScreen() with your actual Admin Login screen widget
+                  MaterialPageRoute(builder: (context) => AdminLoginScreen()),
                 );
               },
               child: Text(
@@ -154,6 +150,44 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
+          ),
+          Positioned(
+            bottom: 10, // Footer at the very bottom
+            left: 0,
+            right: 0,
+            child: _buildFooter(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Made with ',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const Icon(Icons.favorite, color: Colors.red, size: 14),
+              Text(
+                ' by RebelMinds',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.black, // Brand color
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
