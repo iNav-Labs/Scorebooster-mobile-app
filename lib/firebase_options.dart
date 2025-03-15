@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -47,32 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "AIzaSyA6g89WyxaWUBn7uZLzv_3bkNFTh8CY6YM",
-    authDomain: "scorebooster-d4dba.firebaseapp.com",
-    projectId: "scorebooster-d4dba",
-    storageBucket: "scorebooster-d4dba.firebasestorage.app",
-    messagingSenderId: "744693697638",
-    appId: "1:744693697638:web:772999edcd561c8adf31a7",
+    apiKey: 'AIzaSyA6g89WyxaWUBn7uZLzv_3bkNFTh8CY6YM',
+    appId: '1:744693697638:web:00a51c6eb83c4646df31a7',
+    messagingSenderId: '744693697638',
+    projectId: 'scorebooster-d4dba',
+    authDomain: 'scorebooster-d4dba.firebaseapp.com',
+    storageBucket: 'scorebooster-d4dba.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCS5AEn4uSjMSexmFDcQwyK6S4Rdw4rkhs',
+    apiKey: 'AIzaSyADdrYw_A3Kjw8L_fjiqSZ_RtNyl8A5pAw',
     appId: '1:744693697638:android:7766ca0865102088df31a7',
-    messagingSenderId: '1058873364957',
+    messagingSenderId: '744693697638',
     projectId: 'scorebooster-d4dba',
-    storageBucket: 'scorecheck-93b26.firebasestorage.app',
+    storageBucket: 'scorebooster-d4dba.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAlrTK53QAM2rP-kWsWVvzD1_ZM4IMg_pk',
-    appId: '1:1058873364957:ios:fe54595cf7bf4d17c62634',
-    messagingSenderId: '1058873364957',
-    projectId: 'scorecheck-93b26',
-    storageBucket: 'scorecheck-93b26.firebasestorage.app',
-    androidClientId:
-        '1058873364957-7ttpj4plmamslaotekms50t3sjqfanth.apps.googleusercontent.com',
-    iosClientId:
-        '1058873364957-ieuku5nucj4jhaors0rrnogf0mheenr5.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCholj9dT6ZNmcMKUSCm-dDLVaYDckBWy0',
+    appId: '1:744693697638:ios:d1b95473ca1a9d38df31a7',
+    messagingSenderId: '744693697638',
+    projectId: 'scorebooster-d4dba',
+    storageBucket: 'scorebooster-d4dba.firebasestorage.app',
     iosBundleId: 'com.example.scorebooster',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCholj9dT6ZNmcMKUSCm-dDLVaYDckBWy0',
+    appId: '1:744693697638:ios:d1b95473ca1a9d38df31a7',
+    messagingSenderId: '744693697638',
+    projectId: 'scorebooster-d4dba',
+    storageBucket: 'scorebooster-d4dba.firebasestorage.app',
+    iosBundleId: 'com.example.scorebooster',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyA6g89WyxaWUBn7uZLzv_3bkNFTh8CY6YM',
+    appId: '1:744693697638:web:00a51c6eb83c4646df31a7',
+    messagingSenderId: '744693697638',
+    projectId: 'scorebooster-d4dba',
+    authDomain: 'scorebooster-d4dba.firebaseapp.com',
+    storageBucket: 'scorebooster-d4dba.firebasestorage.app',
   );
 }
