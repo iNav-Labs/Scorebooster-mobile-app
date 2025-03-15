@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:scorebooster/backend_apis/google_signin.dart';
@@ -13,7 +14,9 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    print("Error initializing Firebase: $e");
+    if (kDebugMode) {
+      print("Error initializing Firebase: $e");
+    }
   }
 
   runApp(const MyApp());
@@ -30,18 +33,26 @@ class MyApp extends StatelessWidget {
       home: FutureBuilder<bool>(
         future: AuthService().isUserRegistered(),
         builder: (context, snapshot) {
-          print("FutureBuilder state: ${snapshot.connectionState}");
-          print("FutureBuilder data: ${snapshot.data}");
+          if (kDebugMode) {
+            print("FutureBuilder state: ${snapshot.connectionState}");
+          }
+          if (kDebugMode) {
+            print("FutureBuilder data: ${snapshot.data}");
+          }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            print("FutureBuilder is waiting...");
+            if (kDebugMode) {
+              print("FutureBuilder is waiting...");
+            }
             return Scaffold(
               body: Center(child: CustomLoader()),
             );
           }
 
           // Always navigate to LoginScreen first
-          print("Navigating to LoginScreen");
+          if (kDebugMode) {
+            print("Navigating to LoginScreen");
+          }
           return const LoginScreen();
         },
       ),
