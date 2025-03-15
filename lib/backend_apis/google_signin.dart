@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -19,36 +20,13 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = Config.baseUrl;
 
-  // Future<UserCredential?> signInWithGoogle(BuildContext context) async {
-  //   try {
-  //     UserCredential? userCredential;
-
-  //     if (Theme.of(context).platform == TargetPlatform.android ||
-  //         Theme.of(context).platform == TargetPlatform.iOS) {
-  //       // Mobile sign in flow
-  //       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-  //       if (googleUser == null) return null;
-
-  //       final GoogleSignInAuthentication googleAuth =
-  //           await googleUser.authentication;
-  //       final credential = GoogleAuthProvider.credential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
-
-  //       userCredential = await _auth.signInWithCredential(credential);
-  //     } else {
-  //       // Web sign in flow
-  //       final provider = GoogleAuthProvider();
-  //       userCredential = await _auth.signInWithPopup(provider);
-  //     }
-
   Future<UserCredential?> signInWithGoogle(BuildContext context) async {
     try {
       UserCredential? userCredential;
 
-      if (!kIsWeb) {
-        // Mobile Sign-In Flow
+      if (Theme.of(context).platform == TargetPlatform.android ||
+          Theme.of(context).platform == TargetPlatform.iOS) {
+        // Mobile sign in flow
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null;
 
@@ -61,7 +39,7 @@ class AuthService {
 
         userCredential = await _auth.signInWithCredential(credential);
       } else {
-        // Web Sign-In Flow
+        // Web sign in flow
         final provider = GoogleAuthProvider();
         userCredential = await _auth.signInWithPopup(provider);
       }
@@ -162,157 +140,70 @@ class AuthService {
     return false;
   }
 
-  // Future<bool> isUserRegistered() async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   final prefs = await SharedPreferences.getInstance();
-  //   prefs.setString('email', user!.email!);
-
-  //   // Check if user is authenticated
-  //   if (user == null) {
-  //     if (kDebugMode) {
-  //       print('No user is currently logged in.');
-  //     }
-  //     return false; // User is not logged in
-  //   }
-
-  //   if (kDebugMode) {
-  //     print('CURRENT USER: ${user.email}');
-  //   }
-
-  //   try {
-  //     final customers = await fetchAllCustomers(user.email!);
-
-  //     // Check if the customer exists in the database
-  //     if (customers) {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     // Handle exceptions that may occur during fetching customers
-  //     if (kDebugMode) {
-  //       print('An error occurred while checking registration: $e');
-  //     }
-  //     return false; // Optionally, return false or rethrow the error based on your use case
-  //   }
-  // }
-
-  // // Future<bool> fetchAllCustomers(String email) async {
-  // //   try {
-  // //     final uid = await FirebaseAuth.instance.currentUser!.getIdToken();
-
-  // //     final prefs = await SharedPreferences.getInstance();
-  // //     prefs.setString("access_token", uid.toString());
-  // //     final response = await http.get(
-  // //       Uri.parse('${baseUrl}api/customer-exists'),
-  // //       headers: <String, String>{
-  // //         'Content-Type': 'application/json; charset=UTF-8',
-  // //         'Authorization': 'Bearer $uid',
-  // //       },
-  // //       // body: jsonEncode({'email': email}),
-  // //     );
-  // //     if (kDebugMode) {
-  // //       print(response.body);
-  // //     }
-  // //     if (response.statusCode == 200) {
-  // //       final Map<String, dynamic> data = json.decode(response.body);
-  // //       if (kDebugMode) {
-  // //         print(data['exists']);
-  // //       }
-  // //       return data['exists'];
-  // //     }
-  // //     throw Exception('Failed to check customer existence');
-  // //   } catch (e) {
-  // //     if (kDebugMode) {
-  // //       print('Error checking customer existence: $e');
-  // //     }
-  // //     return false;
-  // //   }
-  // // }
-
-  // Future<bool> fetchAllCustomers(String email) async {
-  //   try {
-  //     final user = FirebaseAuth.instance.currentUser;
-  //     if (user == null) return false;
-  //     final uid = await user.getIdToken();
-
-  //     final prefs = await SharedPreferences.getInstance();
-  //     prefs.setString("access_token", uid.toString());
-
-  //     final response = await http.get(
-  //       Uri.parse('${baseUrl}api/customer-exists'),
-  //       headers: {
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //         'Authorization': 'Bearer $uid'
-  //       },
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final data = json.decode(response.body);
-  //       return data['exists'];
-  //     }
-  //     throw Exception('Failed to check customer existence');
-  //   } catch (e) {
-  //     if (kDebugMode) print('Error checking customer existence: $e');
-  //     return false;
-  //   }
-  // }
-
   Future<bool> isUserRegistered() async {
     final user = FirebaseAuth.instance.currentUser;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', user!.email!);
 
-    // **Check if user is authenticated**
-    if (user == null || user.email == null) {
+    // Check if user is authenticated
+    if (user == null) {
       if (kDebugMode) {
         print('No user is currently logged in.');
       }
-      return false;
+      return false; // User is not logged in
     }
-
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('email', user.email!);
 
     if (kDebugMode) {
       print('CURRENT USER: ${user.email}');
     }
 
     try {
-      final bool customerExists = await fetchAllCustomers(user.email!);
-      return customerExists;
+      final customers = await fetchAllCustomers(user.email!);
+
+      // Check if the customer exists in the database
+      if (customers) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
+      // Handle exceptions that may occur during fetching customers
       if (kDebugMode) {
         print('An error occurred while checking registration: $e');
       }
-      return false;
+      return false; // Optionally, return false or rethrow the error based on your use case
     }
   }
 
   Future<bool> fetchAllCustomers(String email) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return false;
+      final uid = await FirebaseAuth.instance.currentUser!.getIdToken();
 
-      final uid = await user.getIdToken();
       final prefs = await SharedPreferences.getInstance();
       prefs.setString("access_token", uid.toString());
-
       final response = await http.get(
-        Uri.parse('${baseUrl}api/customer-exists?email=$email'),
-        headers: {
+        Uri.parse('${baseUrl}api/customer-exists'),
+        headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $uid'
+          'Authorization': 'Bearer $uid',
         },
+        // body: jsonEncode({'email': email}),
       );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print("API Response: $data");
-        return data['exists'] ?? false;
+      if (kDebugMode) {
+        print(response.body);
       }
-
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (kDebugMode) {
+          print(data['exists']);
+        }
+        return data['exists'];
+      }
       throw Exception('Failed to check customer existence');
     } catch (e) {
-      if (kDebugMode) print('Error checking customer existence: $e');
+      if (kDebugMode) {
+        print('Error checking customer existence: $e');
+      }
       return false;
     }
   }
@@ -360,45 +251,27 @@ class AuthService {
     }
   }
 
-  // Future<void> logout(BuildContext context) async {
-  //   try {
-  //     await _auth.signOut();
-  //     await _googleSignIn.signOut();
-
-  //     final prefs = await SharedPreferences.getInstance();
-  //     await prefs.clear();
-
-  //     // ignore: use_build_context_synchronously
-  //     Navigator.of(context).pushAndRemoveUntil(
-  //       MaterialPageRoute(builder: (context) => const LoginScreen()),
-  //       (route) => false,
-  //     );
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print('Error during logout: $e');
-  //     }
-  //     // ignore: use_build_context_synchronously
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Error logging out. Please try again.')),
-  //     );
-  //   }
-  // }
-
   Future<void> logout(BuildContext context) async {
     try {
       await _auth.signOut();
       await _googleSignIn.signOut();
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
 
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
-      }
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
     } catch (e) {
-      if (kDebugMode) print('Error during logout: $e');
+      if (kDebugMode) {
+        print('Error during logout: $e');
+      }
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error logging out. Please try again.')),
+      );
     }
   }
 }
