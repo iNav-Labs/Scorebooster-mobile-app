@@ -77,6 +77,302 @@ const verifyFirebaseToken = async (req, res, next) => {
 
 // API Routes
 
+// Get all bundle details
+app.get("/api/all-bundles", verifyFirebaseToken, async (req, res) => {
+  try {
+    const bundles = await db.collection("bundles").find().toArray();
+    
+    const formattedBundles = bundles.map(bundle => ({
+      id: bundle._id.toString(),
+      title: bundle.name,
+      description: bundle.description,
+      imageUrl: bundle.imageUrl || "",
+      price: bundle.price,
+    }));
+    // console.log(formattedBundles);
+    
+    res.json(formattedBundles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+// Purchase bundle
+app.post("/api/purchase-bundle", verifyFirebaseToken, async (req, res) => {
+  try {
+    console.log("Purchase bundle");
+    const userId = req.user.uid;
+    const email = req.user.email;
+    const { bundleId } = req.body;
+    
+    if (!bundleId) {
+      return res.status(400).json({ error: "Bundle ID is required" });
+    }
+
+    // Check if bundle exists
+    const bundle = await db.collection("bundles").findOne({ 
+      _id: new ObjectId(bundleId),
+      active: true 
+    });
+    
+    if (!bundle) {
+      return res.status(404).json({ error: "Bundle not found or inactive" });
+    }
+
+    // Check if customer exists
+    let customer = await db.collection("customers").findOne({ email });
+    
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found. Please create a customer profile first." });
+    }
+
+    // Check if bundle already purchased
+    const alreadyPurchased = (customer.purchased_bundles || []).some(
+      purchase => purchase.bundle_id.toString() === bundleId
+    );
+
+    if (alreadyPurchased) {
+      return res.status(400).json({ error: "Bundle already purchased" });
+    }
+
+    // Add bundle to customer's purchases
+    const purchaseData = {
+      bundle_id: new ObjectId(bundleId),
+      purchase_date: new Date(),
+      price: bundle.price
+    };
+
+    await db.collection("customers").updateOne(
+      { email },
+      { $push: { purchased_bundles: purchaseData } }
+    );
+
+    res.status(200).json({ 
+      message: "Bundle purchased successfully",
+      bundle: {
+        id: bundle._id.toString(),
+        name: bundle.name,
+        price: bundle.price
+      }
+    });
+  } catch (error) {
+    console.error("Purchase error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user's purchased bundles
+app.get("/api/purchased-bundles", verifyFirebaseToken, async (req, res) => {
+  try {
+    const email = req.user.email;
+    
+    // Find the customer
+    const customer = await db.collection("customers").findOne({ email });
+    
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+    
+    // Get purchased bundles
+    const purchasedBundleIds = (customer.purchased_bundles || []).map(
+      purchase => purchase.bundle_id
+    );
+    
+    if (purchasedBundleIds.length === 0) {
+      return res.json([]);
+    }
+    
+    // Fetch full bundle details
+    const bundles = await db.collection("bundles").find({
+      _id: { $in: purchasedBundleIds }
+    }).toArray();
+    
+    // Format the response
+    const formattedBundles = bundles.map(bundle => ({
+      id: bundle._id.toString(),
+      title: bundle.name,
+      description: bundle.description,
+      imageUrl: bundle.imageUrl || "",
+      price: bundle.price,
+      purchaseDate: customer.purchased_bundles.find(
+        p => p.bundle_id.toString() === bundle._id.toString()
+      )?.purchase_date
+    }));
+    
+    res.json(formattedBundles);
+  } catch (error) {
+    console.error("Error fetching purchased bundles:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all tests details from a bundle
+app.get("/api/tests/:bundleId", verifyFirebaseToken, async (req, res) => {
+  try {
+    const { bundleId } = req.params;
+    const email = req.user.email;
+    
+    // Check if customer exists
+    const customer = await db.collection("customers").findOne({ email });
+    
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+    
+    // Check if bundle is purchased
+    const hasPurchased = (customer.purchased_bundles || []).some(
+      purchase => purchase.bundle_id.toString() === bundleId
+    );
+    
+    if (!hasPurchased) {
+      return res.status(403).json({ error: "Bundle not purchased" });
+    }
+    
+    // Fetch the bundle
+    const bundle = await db.collection("bundles").findOne({ 
+      _id: new ObjectId(bundleId) 
+    });
+    
+    if (!bundle) {
+      return res.status(404).json({ error: "Bundle not found" });
+    }
+    
+    // Format and return all tests in the bundle
+    const tests = (bundle.tests || []).map(test => ({
+      id: test.test_id.toString(),
+      title: test.test_name,
+      description: test.description || "",
+      questionsCount: (test.questions || []).length
+    }));
+    
+    res.json(tests);
+    
+  } catch (error) {
+    console.error("Error fetching tests:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get test questions for a specific test
+app.get("/api/test-questions/:bundleId/:testId", verifyFirebaseToken, async (req, res) => {
+  try {
+    const { bundleId, testId } = req.params;
+    const email = req.user.email;
+    
+    // Check if customer exists
+    const customer = await db.collection("customers").findOne({ email });
+    
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+    
+    // Check if bundle is purchased
+    const hasPurchased = (customer.purchased_bundles || []).some(
+      purchase => purchase.bundle_id.toString() === bundleId
+    );
+    
+    if (!hasPurchased) {
+      return res.status(403).json({ error: "Bundle not purchased" });
+    }
+    
+    // Fetch the bundle
+    const bundle = await db.collection("bundles").findOne({ 
+      _id: new ObjectId(bundleId) 
+    });
+    
+    if (!bundle) {
+      return res.status(404).json({ error: "Bundle not found" });
+    }
+    
+    // Find the test in the bundle
+    const test = (bundle.tests || []).find(
+      test => test.test_id.toString() === testId
+    );
+    
+    if (!test) {
+      return res.status(404).json({ error: "Test not found" });
+    }
+    
+    // Format questions as requested
+    const formattedQuestions = (test.questions || []).map(question => ({
+      question: question.question_text,
+      options: question.options,
+      correctAnswer: question.options[question.correct_answer],
+      solution: question.solution || ""
+    }));
+    console.log(formattedQuestions[0]);
+    
+    // Calculate time based on number of questions (60 seconds per question)
+    const timeInMinutes = formattedQuestions.length;
+    
+    res.json({
+      title: test.test_name,
+      questions: formattedQuestions,
+      timeInMinutes: timeInMinutes
+    });
+    
+  } catch (error) {
+    console.error("Error fetching test questions:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// // Get test details for user
+// app.get("/api/test-details/:bundleId/:testId", verifyFirebaseToken, async (req, res) => {
+//   try {
+//     const { bundleId, testId } = req.params;
+//     const email = req.user.email;
+    
+//     // Check if customer exists
+//     const customer = await db.collection("customers").findOne({ email });
+    
+//     if (!customer) {
+//       return res.status(404).json({ error: "Customer not found" });
+//     }
+    
+//     // Check if bundle is purchased
+//     const hasPurchased = (customer.purchased_bundles || []).some(
+//       purchase => purchase.bundle_id.toString() === bundleId
+//     );
+    
+//     if (!hasPurchased) {
+//       return res.status(403).json({ error: "Bundle not purchased" });
+//     }
+    
+//     // Fetch the bundle
+//     const bundle = await db.collection("bundles").findOne({ 
+//       _id: new ObjectId(bundleId) 
+//     });
+    
+//     if (!bundle) {
+//       return res.status(404).json({ error: "Bundle not found" });
+//     }
+    
+//     // Find the test in the bundle
+//     const test = (bundle.tests || []).find(
+//       test => test.test_id.toString() === testId
+//     );
+    
+//     if (!test) {
+//       return res.status(404).json({ error: "Test not found" });
+//     }
+    
+//     // Return test details
+//     res.json({
+//       id: test.test_id.toString(),
+//       title: test.test_name,
+//       description: test.description || "",
+//       questionsCount: (test.questions || []).length
+//     });
+    
+//   } catch (error) {
+//     console.error("Error fetching test details:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
 // Get all bundles
 app.get("/api/bundles", verifyFirebaseToken, async (req, res) => {
   try {
