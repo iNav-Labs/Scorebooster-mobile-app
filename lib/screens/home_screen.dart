@@ -1,9 +1,16 @@
 // lib/main.dart
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:scorebooster/config.dart';
 import 'package:scorebooster/screens/course_card.dart';
 import 'package:scorebooster/screens/profile_screen.dart';
 import 'package:scorebooster/screens/purchased_bundle.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -78,78 +85,69 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Course> _courses = [
-    Course(
-      id: '1',
-      title: 'JEE Mains 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/jee.png',
-      price: 499,
-    ),
-    Course(
-      id: '2',
-      title: 'NEET Exam 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/neet.png',
-      price: 499,
-    ),
-    Course(
-      id: '1',
-      title: 'JEE Mains 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/jee.png',
-      price: 499,
-    ),
-    Course(
-      id: '2',
-      title: 'NEET Exam 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/neet.png',
-      price: 499,
-    ),
-    Course(
-      id: '1',
-      title: 'JEE Mains 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/jee.png',
-      price: 499,
-    ),
-    Course(
-      id: '2',
-      title: 'NEET Exam 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/neet.png',
-      price: 499,
-    ),
-    Course(
-      id: '1',
-      title: 'JEE Mains 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/jee.png',
-      price: 499,
-    ),
-    Course(
-      id: '2',
-      title: 'NEET Exam 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/neet.png',
-      price: 499,
-    ),
-  ];
+  List<Course> _courses = [];
+  bool _isLoading = true;
+  String? _error;
+
+  Future<void> _fetchCourses() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final uid = await FirebaseAuth.instance.currentUser!.getIdToken();
+      final response = await http.get(
+        Uri.parse('${Config.baseUrl}api/all-bundles'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $uid',
+        },
+      );
+
+      if (kDebugMode) {
+        print(response.body);
+      }
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _courses = data
+              .map((item) => Course(
+                    id: item['id'],
+                    title: item['title'],
+                    description: item['description'],
+                    imageUrl: item['imageUrl'],
+                    price: item['price'].toDouble(),
+                  ))
+              .toList();
+          _filteredCourses = _courses;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = 'Failed to load courses: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error: ${e.toString()}';
+        _isLoading = false;
+      });
+      if (kDebugMode) {
+        print('Error fetching courses: $e');
+      }
+    }
+  }
 
   List<Course> _filteredCourses = [];
 
   @override
   void initState() {
     super.initState();
+    _fetchCourses();
     _filteredCourses = _courses;
   }
 

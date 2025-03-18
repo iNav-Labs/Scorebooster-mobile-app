@@ -1,7 +1,14 @@
 // lib/screens/bundle_screen.dart
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:scorebooster/config.dart';
 import 'package:scorebooster/screens/home_screen.dart';
+import 'package:scorebooster/users/test_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BundleScreen extends StatefulWidget {
   final Course course;
@@ -14,65 +21,133 @@ class BundleScreen extends StatefulWidget {
 
 class _BundleScreenState extends State<BundleScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> _topics = [
-    {
-      'title': 'Center of Mass',
-      'description':
-          'Covering all the concepts related to center of mass and its applications.',
-    },
-    {
-      'title': 'Organic Chemistry',
-      'description':
-          'Fundamentals of organic chemistry, including nomenclature and reactions.',
-    },
-    {
-      'title': 'Integration Derivatives',
-      'description':
-          'Mastering integration and derivatives with practice problems and examples.',
-    },
-    {
-      'title': 'Newton\'s Laws of Motion',
-      'description':
-          'A comprehensive study of Newton\'s three laws and their applications in mechanics.',
-    },
-    {
-      'title': 'Thermodynamics',
-      'description':
-          'Exploring the principles of thermodynamics and their role in energy transfer.',
-    },
-    {
-      'title': 'Chemical Bonding',
-      'description':
-          'Understanding the different types of chemical bonds and their properties.',
-    },
-    {
-      'title': 'Matrices and Determinants',
-      'description':
-          'Learn about matrices, determinants, and their applications in linear algebra.',
-    },
-    {
-      'title': 'Optics',
-      'description':
-          'Explore the principles of light, reflection, refraction, and optical instruments.',
-    },
-    {
-      'title': 'Optics',
-      'description':
-          'Explore the principles of light, reflection, refraction, and optical instruments.',
-    },
-    {
-      'title': 'Optics',
-      'description':
-          'Explore the principles of light, reflection, refraction, and optical instruments.',
-    },
-  ];
-  List<Map<String, String>> _filteredTopics = [];
+  List<Map<String, dynamic>> _topics = [];
+  List<Map<String, dynamic>> _filteredTopics = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _filteredTopics =
-        List.from(_topics); // Initialize filtered list with all topics
+    _fetchTopics();
+  }
+
+  Future<void> _fetchTestQuestions(String testId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        setState(() {
+          _errorMessage = 'Authentication token not found';
+        });
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse(
+            '${Config.baseUrl}api/test-questions/${widget.course.id}/$testId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        final List<Map<String, dynamic>> formattedQuestions =
+            (data['questions'] as List)
+                .map<Map<String, dynamic>>((q) => {
+                      'question': q['question'],
+                      'options': q['options'],
+                      'correctAnswer': q['correctAnswer'],
+                      'solution': q['solution'] ?? '',
+                    })
+                .toList();
+
+        // Check if there are no questions
+        if (formattedQuestions.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No questions available for this test')),
+          );
+          return;
+        }
+
+        // Navigate to test page
+        // TODO added the commet here
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QuizPage(
+              questions: formattedQuestions,
+              // timeInSeconds: data['timeInSeconds'],
+              timeInSeconds: formattedQuestions.length,
+              title: data['title'],
+            ),
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage =
+              'Failed to load test questions: ${response.statusCode}';
+        });
+
+        // Show error message to user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_errorMessage ?? 'Unknown error occurred')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: ${e.toString()}';
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage ?? 'Unknown error occurred')),
+      );
+    }
+  }
+
+  Future<void> _fetchTopics() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() => _isLoading = true);
+
+      final response = await http.get(
+        Uri.parse('${Config.baseUrl}api/tests/${widget.course.id}'),
+        headers: {
+          'Authorization': 'Bearer ${prefs.getString('access_token')}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          _topics = data
+              .map((test) => {
+                    'title': test['title'],
+                    'description': test['description'] ?? '',
+                    'id': test['id'],
+                    'questionsCount': test['questionsCount'].toString(),
+                  })
+              .toList();
+
+          _filteredTopics = List.from(_topics);
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load topics: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
   }
 
   void _filterTopics(String query) {
@@ -147,7 +222,7 @@ class _BundleScreenState extends State<BundleScreen> {
                     itemBuilder: (context, index) {
                       final topic = _filteredTopics[index];
                       return GestureDetector(
-                        onTap: () => _showStartTestDialog(context),
+                        onTap: () => _showStartTestDialog(context, index),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -191,7 +266,8 @@ class _BundleScreenState extends State<BundleScreen> {
     );
   }
 
-  void _showStartTestDialog(BuildContext context) {
+  void _showStartTestDialog(BuildContext context, int index) {
+    print(index);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -214,7 +290,18 @@ class _BundleScreenState extends State<BundleScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              print('Test is Starting');
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => QuizPage(
+              //         // questions: _filteredTopics,
+              //         ),
+              //   ),
+              // );
+              _fetchTestQuestions(_filteredTopics[index]['id']);
+              if (kDebugMode) {
+                print('Test is Starting');
+              }
             },
             child: Text(
               'Yes',

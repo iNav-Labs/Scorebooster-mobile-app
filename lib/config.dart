@@ -2,9 +2,10 @@
 
 class Config {
   // Base URL for the Flask backend
-  // static const String baseUrl = 'https://scorebooster-backend.onrender.com/';
-  // static const String baseUrl = 'https://scorebooster-backend.onrender.com/';
+  // static const String baseUrl = 'http://127.0.0.1:3000/';
   static const String baseUrl = 'https://scorebooster-mobile-app.onrender.com/';
+  // static const String baseUrl = 'https://scorebooster-backend.onrender.com/';
+  // static const String baseUrl = 'https://scorebooster-mobile-app.onrender.com/';
 
   static const String apiKey = 'AIzaSyDNs0SGaEHb7nKA0MHuzktLLyLNh1rwNhA';
   static const String appId = '1:1058873364957:web:556bbe54cc333229c62634';

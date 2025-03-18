@@ -1,11 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:scorebooster/users/results_page.dart';
 import 'package:scorebooster/users/widgets/custom_drawer.dart';
 import 'package:scorebooster/users/widgets/timer.dart';
 
 class QuizPage extends StatefulWidget {
-  const QuizPage({super.key});
+  const QuizPage(
+      {super.key,
+      required this.questions,
+      required this.timeInSeconds,
+      required this.title});
+  final List<Map<String, dynamic>> questions;
+  final int timeInSeconds;
+  final String title;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -14,844 +22,114 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   int _currentQuestionIndex = 0;
-  final List<Map<String, dynamic>> _questions = [
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    {
-      'question': 'A cup of water was enough to _____ his thirst.',
-      'options': [
-        'satisfy',
-        'appease',
-        'quench',
-        'extinguish',
-      ],
-      'correctAnswer': 'quench'
-    },
-    {
-      'question': 'The police have _____ the suspect.',
-      'options': [
-        'arrested',
-        'captured',
-        'seized',
-        'apprehended',
-      ],
-      'correctAnswer': 'arrested'
-    },
-    // Add more questions here
-  ];
+  // final List<Map<String, dynamic>> widget.questions = [
+  //   {
+  //     'question': 'A cup of water was enough to _____ his thirst.',
+  //     'options': [
+  //       'satisfy',
+  //       'appease',
+  //       'quench',
+  //       'extinguish',
+  //     ],
+  //     'correctAnswer': 'quench'
+  //   },
+  //   {
+  //     'question': 'The police have _____ the suspect.',
+  //     'options': [
+  //       'arrested',
+  //       'captured',
+  //       'seized',
+  //       'apprehended',
+  //     ],
+  //     'correctAnswer': 'arrested'
+  //   },
+  //   {
+  //     'question': 'A cup of water was enough to _____ his thirst.',
+  //     'options': [
+  //       'satisfy',
+  //       'appease',
+  //       'quench',
+  //       'extinguish',
+  //     ],
+  //     'correctAnswer': 'quench'
+  //   },
+  //   {
+  //     'question': 'The police have _____ the suspect.',
+  //     'options': [
+  //       'arrested',
+  //       'captured',
+  //       'seized',
+  //       'apprehended',
+  //     ],
+  //     'correctAnswer': 'arrested'
+  //   },
+  //   {
+  //     'question': 'A cup of water was enough to _____ his thirst.',
+  //     'options': [
+  //       'satisfy',
+  //       'appease',
+  //       'quench',
+  //       'extinguish',
+  //     ],
+  //     'correctAnswer': 'quench'
+  //   },
+  //   {
+  //     'question': 'The police have _____ the suspect.',
+  //     'options': [
+  //       'arrested',
+  //       'captured',
+  //       'seized',
+  //       'apprehended',
+  //     ],
+  //     'correctAnswer': 'arrested'
+  //   },
+  //   {
+  //     'question': 'A cup of water was enough to _____ his thirst.',
+  //     'options': [
+  //       'satisfy',
+  //       'appease',
+  //       'quench',
+  //       'extinguish',
+  //     ],
+  //     'correctAnswer': 'quench'
+  //   },
+  //   // Add more questions here
+  // ];
 
   void _saveNextQuestion() {
     setState(() {
-      if (_questions[_currentQuestionIndex]['selectedOption'] != null) {
-        _questions[_currentQuestionIndex]['save'] = true;
+      if (widget.questions[_currentQuestionIndex]['selectedOption'] != null) {
+        widget.questions[_currentQuestionIndex]['save'] = true;
       } else {
-        _questions[_currentQuestionIndex]['save'] = false;
+        widget.questions[_currentQuestionIndex]['save'] = false;
       }
-      // _questions[_currentQuestionIndex]['save'] = true;
-      if (_currentQuestionIndex < _questions.length - 1) {
+      // widget.questions[_currentQuestionIndex]['save'] = true;
+      if (_currentQuestionIndex < widget.questions.length - 1) {
         _currentQuestionIndex++;
       }
     });
     if (kDebugMode) {
-      print(_questions);
+      print(widget.questions);
     }
   }
 
   void _clearSelectedOption() {
     if (kDebugMode) {
-      print(_questions);
+      print(widget.questions);
     }
     setState(() {
-      _questions[_currentQuestionIndex]['markForReview'] = false;
-      _questions[_currentQuestionIndex]['save'] = false;
-      _questions[_currentQuestionIndex]['selectedOption'] = null;
+      widget.questions[_currentQuestionIndex]['markForReview'] = false;
+      widget.questions[_currentQuestionIndex]['save'] = false;
+      widget.questions[_currentQuestionIndex]['selectedOption'] = null;
     });
   }
 
   void _markForReview() {
     if (kDebugMode) {
-      print(_questions);
+      print(widget.questions);
     }
     setState(() {
-      _questions[_currentQuestionIndex]['markForReview'] = true;
+      widget.questions[_currentQuestionIndex]['markForReview'] = true;
       _saveNextQuestion();
     });
   }
@@ -869,7 +147,7 @@ class _QuizPageState extends State<QuizPage> {
         context,
         MaterialPageRoute(
             builder: (context) => ResultsPage(
-                  questions: _questions,
+                  questions: widget.questions,
                 )), // Replace with actual result page
       );
     });
@@ -882,9 +160,10 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       drawer: QuestionListDrawer(
         onTap: _changeQuestion,
-        questions: _questions,
+        questions: widget.questions,
       ),
       appBar: AppBar(
         leading: Builder(builder: (context) {
@@ -899,10 +178,10 @@ class _QuizPageState extends State<QuizPage> {
           children: [
             GestureDetector(
               onTap: () {
-                onTimerEnd(_questions);
+                onTimerEnd(widget.questions);
                 // Implement the logic to submit the quiz
                 if (kDebugMode) {
-                  print(_questions);
+                  print(widget.questions);
                 }
               },
               child: Container(
@@ -922,8 +201,8 @@ class _QuizPageState extends State<QuizPage> {
               ),
             ),
             CountdownTimer(
-              onTimerEnd: () => onTimerEnd(_questions),
-              durationInMinutes: 1,
+              onTimerEnd: () => onTimerEnd(widget.questions),
+              durationInMinutes: widget.timeInSeconds,
             ),
           ],
         ),
@@ -935,7 +214,7 @@ class _QuizPageState extends State<QuizPage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                '${_currentQuestionIndex + 1}. ${_questions[_currentQuestionIndex]['question']}',
+                '${_currentQuestionIndex + 1}. ${widget.questions[_currentQuestionIndex]['question']}',
                 style: const TextStyle(
                   fontSize: 18,
                 ),
@@ -946,13 +225,13 @@ class _QuizPageState extends State<QuizPage> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      for (final option in _questions[_currentQuestionIndex]
-                          ['options'])
+                      for (final option
+                          in widget.questions[_currentQuestionIndex]['options'])
                         GestureDetector(
                           onTap: () {
                             setState(() {
                               // dded setState here
-                              _questions[_currentQuestionIndex]
+                              widget.questions[_currentQuestionIndex]
                                   ['selectedOption'] = option;
                             });
                           },
@@ -961,7 +240,7 @@ class _QuizPageState extends State<QuizPage> {
                             margin: const EdgeInsets.all(8),
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: _questions[_currentQuestionIndex]
+                              color: widget.questions[_currentQuestionIndex]
                                           ['selectedOption'] ==
                                       option
                                   ? Color.fromARGB(40, 1, 33, 105)
@@ -969,7 +248,7 @@ class _QuizPageState extends State<QuizPage> {
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 style: BorderStyle.solid,
-                                color: _questions[_currentQuestionIndex]
+                                color: widget.questions[_currentQuestionIndex]
                                             ['selectedOption'] ==
                                         option
                                     ? Color.fromARGB(255, 1, 33, 105)

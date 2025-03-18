@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final response = await http.post(
-      Uri.parse('${Config.baseUrl}/api/create-customer'),
+      Uri.parse('${Config.baseUrl}api/create-customer'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${prefs.getString('access_token')}',
