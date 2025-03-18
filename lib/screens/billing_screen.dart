@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'dart:math';
-
+import 'dart:io'; // Detect if the platform is Web
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,17 +9,96 @@ import 'package:scorebooster/screens/home_screen.dart';
 import 'package:scorebooster/screens/payment_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:razorpay_flutter/razorpay_flutter.dart'
+    if (dart.library.html) 'package:razorpay_web/razorpay_web.dart';
+
 class BillingScreen extends StatefulWidget {
   final Course course;
 
-  const BillingScreen({required this.course});
+  const BillingScreen({super.key, required this.course});
 
   @override
   State<BillingScreen> createState() => _BillingScreenState();
 }
 
 class _BillingScreenState extends State<BillingScreen> {
-  // Add a function to handle the bundle purchase
+  late dynamic _razorpay; // Use dynamic to support both packages
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (kIsWeb) {
+      debugPrint("Using Razorpay Web");
+      _razorpay = Razorpay();
+    } else {
+      debugPrint("Using Razorpay Flutter");
+      _razorpay = Razorpay();
+    }
+
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    debugPrint("Payment successful: ${response.paymentId}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text("Payment successful! Order ID: ${response.paymentId}")),
+    );
+
+    purchaseBundle(widget.course.id);
+
+    // Navigate to PaymentSplashScreen after successful payment
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => PaymentSplashScreen()),
+    );
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    debugPrint("Payment failed: ${response.message}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Payment failed: ${response.message}")),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    debugPrint("External wallet selected: ${response.walletName}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text("External wallet selected: ${response.walletName}")),
+    );
+  }
+
+  void startPayment() {
+    var options = {
+      'key': 'rzp_test_QiBLpEEa6ZlUld', // Replace with actual Razorpay key
+      'amount': widget.course.price * 100, // Convert to paise
+      'currency': 'INR',
+      'name': 'ScoreBooster',
+      'description': widget.course.title,
+      'prefill': {
+        'contact': '9876543210',
+        'email': 'user@example.com',
+      },
+      'theme': {'color': '#FF8C00'}
+    };
+
+    debugPrint("Attempting to open Razorpay with options: $options");
+
+    try {
+      _razorpay.open(options);
+      debugPrint("Razorpay checkout opened successfully.");
+    } catch (e) {
+      debugPrint("Error opening Razorpay: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment Error: ${e.toString()}")),
+      );
+    }
+  }
+
   Future<void> purchaseBundle(String bundleId) async {
     final prefs = await SharedPreferences.getInstance();
     try {
@@ -30,34 +108,33 @@ class _BillingScreenState extends State<BillingScreen> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${prefs.getString('access_token')}',
         },
-        body: jsonEncode({
-          'bundleId': bundleId,
-        }),
+        body: jsonEncode({'bundleId': bundleId}),
       );
 
       if (response.statusCode == 200) {
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Bundle purchased successfully!')),
         );
-        // Optionally navigate to success screen
       } else {
         final errorData = jsonDecode(response.body);
-        // ignore: use_build_context_synchronously
-        if (kDebugMode) {
-          print(errorData);
-        }
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorData['error'] ?? 'Purchase failed')),
         );
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    if (!kIsWeb) {
+      _razorpay.clear(); // Clear listeners only for mobile
+      debugPrint("Razorpay instance cleared.");
+    }
+    super.dispose();
   }
 
   @override
@@ -75,8 +152,7 @@ class _BillingScreenState extends State<BillingScreen> {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      backgroundColor:
-          Colors.grey[100], // A light background for the whole screen
+      backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Container(
@@ -123,7 +199,6 @@ class _BillingScreenState extends State<BillingScreen> {
                   ),
                 ],
               ),
-
               SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,64 +222,20 @@ class _BillingScreenState extends State<BillingScreen> {
               ),
               SizedBox(height: 24),
               Divider(color: Colors.grey[300], thickness: 1),
-              SizedBox(height: 24),
-              Text(
-                'Payment Method Accepted',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
-                ),
-              ),
-              SizedBox(height: 16),
-              // Add your payment method selection UI here (e.g., radio buttons for different payment options)
-              // For now, let's just add a placeholder:
-              ListTile(
-                leading: Icon(Icons.payment, color: Colors.orange),
-                title: Text(
-                  'Credit/Debit Card',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                // You can add onTap functionality to handle payment method selection
-              ),
-              ListTile(
-                leading:
-                    Icon(Icons.account_balance_wallet, color: Colors.orange),
-                title: Text(
-                  'UPI',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                // You can add onTap functionality to handle payment method selection
-              ),
-              ListTile(
-                leading:
-                    Icon(Icons.account_balance_wallet, color: Colors.orange),
-                title: Text(
-                  'Net Banking',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                // You can add onTap functionality to handle payment method selection
-              ),
               SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    purchaseBundle(widget.course.id);
-                    if (kDebugMode) {
-                      print('Purchased');
-                    }
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PaymentSplashScreen()),
-                    );
+                    startPayment();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     textStyle: GoogleFonts.poppins(
-                        fontSize: 18, fontWeight: FontWeight.w600),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

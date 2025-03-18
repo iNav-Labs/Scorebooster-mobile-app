@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scorebooster/screens/home_screen.dart';
 
 class PaymentSplashScreen extends StatefulWidget {
+  const PaymentSplashScreen({super.key});
+
   @override
   _PaymentSplashScreenState createState() => _PaymentSplashScreenState();
 }
