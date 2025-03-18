@@ -25,8 +25,8 @@ class AuthService {
 
       if (Theme.of(context).platform == TargetPlatform.android ||
           Theme.of(context).platform == TargetPlatform.iOS) {
-        // Mobile sign in flow
-        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        // Mobile sign-in flow
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null;
 
         final GoogleSignInAuthentication googleAuth =
@@ -38,45 +38,45 @@ class AuthService {
 
         userCredential = await _auth.signInWithCredential(credential);
       } else {
-        // Web sign in flow
+        // Web sign-in flow
         final provider = GoogleAuthProvider();
-        userCredential = await _auth.signInWithPopup(provider);
+
+        if (kIsWeb &&
+            (defaultTargetPlatform == TargetPlatform.iOS ||
+                defaultTargetPlatform == TargetPlatform.android)) {
+          // Use redirect for mobile browsers
+          await _auth.signInWithRedirect(provider);
+          return null; // Return null as the result comes later via onAuthStateChanged
+        } else {
+          // Use popup for desktop browsers
+          userCredential = await _auth.signInWithPopup(provider);
+        }
       }
 
-      if (userCredential.user != null) {
-        // Store user data using SharedPreferences
+      if (userCredential != null && userCredential.user != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('email', userCredential.user!.email ?? '');
         await prefs.setString('name', userCredential.user!.displayName ?? '');
         await prefs.setString(
             'user_photo', userCredential.user!.photoURL ?? '');
 
-        if (kDebugMode) {
-          print('Sign-in successful: ${userCredential.user!.displayName}');
-        }
-
-        // Check if user is registered
         bool isRegistered =
             await isExistRegistered(userCredential.user!.email!);
-        // bool isRegistered = await isLoggedin();
-        if (kDebugMode) {
-          print(isRegistered);
-        }
 
         if (isRegistered) {
-          // Navigate to HomeScreen
-          // ignore: use_build_context_synchronously
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => MainScreen()),
-            (route) => false,
-          );
+          if (context.mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => MainScreen()),
+              (route) => false,
+            );
+          }
         } else {
-          // Navigate to LoginScreen instead of showing dialog
-          // ignore: use_build_context_synchronously
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-            (route) => false,
-          );
+          if (context.mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+            );
+          }
         }
       }
 
@@ -85,109 +85,25 @@ class AuthService {
       if (kDebugMode) {
         print('Error during Google Sign-In: $e');
       }
-      await showDialog(
-        // ignore: use_build_context_synchronously
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Sign In Error'),
-          content: Text('An error occurred during sign in: ${e.toString()}'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Sign In Error'),
+            content: Text('An error occurred during sign-in: ${e.toString()}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
       return null;
     }
   }
-
-  // Future<UserCredential?> signInWithGoogle(BuildContext context) async {
-  //   try {
-  //     UserCredential? userCredential;
-
-  //     if (Theme.of(context).platform == TargetPlatform.android ||
-  //         Theme.of(context).platform == TargetPlatform.iOS) {
-  //       // Mobile sign-in flow
-  //       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-  //       if (googleUser == null) return null;
-
-  //       final GoogleSignInAuthentication googleAuth =
-  //           await googleUser.authentication;
-  //       final credential = GoogleAuthProvider.credential(
-  //         accessToken: googleAuth.accessToken,
-  //         idToken: googleAuth.idToken,
-  //       );
-
-  //       userCredential = await _auth.signInWithCredential(credential);
-  //     } else {
-  //       // Web sign-in flow
-  //       final provider = GoogleAuthProvider();
-
-  //       if (kIsWeb &&
-  //           (defaultTargetPlatform == TargetPlatform.iOS ||
-  //               defaultTargetPlatform == TargetPlatform.android)) {
-  //         // Use redirect for mobile browsers
-  //         await _auth.signInWithRedirect(provider);
-  //         return null; // Return null as the result comes later via onAuthStateChanged
-  //       } else {
-  //         // Use popup for desktop browsers
-  //         userCredential = await _auth.signInWithPopup(provider);
-  //       }
-  //     }
-
-  //     if (userCredential != null && userCredential.user != null) {
-  //       final prefs = await SharedPreferences.getInstance();
-  //       await prefs.setString('email', userCredential.user!.email ?? '');
-  //       await prefs.setString('name', userCredential.user!.displayName ?? '');
-  //       await prefs.setString(
-  //           'user_photo', userCredential.user!.photoURL ?? '');
-
-  //       bool isRegistered =
-  //           await isExistRegistered(userCredential.user!.email!);
-
-  //       if (isRegistered) {
-  //         if (context.mounted) {
-  //           Navigator.of(context).pushAndRemoveUntil(
-  //             MaterialPageRoute(builder: (context) => MainScreen()),
-  //             (route) => false,
-  //           );
-  //         }
-  //       } else {
-  //         if (context.mounted) {
-  //           Navigator.of(context).pushAndRemoveUntil(
-  //             MaterialPageRoute(builder: (context) => const LoginScreen()),
-  //             (route) => false,
-  //           );
-  //         }
-  //       }
-  //     }
-
-  //     return userCredential;
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print('Error during Google Sign-In: $e');
-  //     }
-
-  //     if (context.mounted) {
-  //       await showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           title: const Text('Sign In Error'),
-  //           content: Text('An error occurred during sign-in: ${e.toString()}'),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               child: const Text('OK'),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     }
-  //     return null;
-  //   }
-  // }
 
   Future<bool> isExistRegistered(String email) async {
     try {
