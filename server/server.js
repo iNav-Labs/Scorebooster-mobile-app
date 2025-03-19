@@ -273,9 +273,9 @@ app.get("/api/test-questions/:bundleId/:testId", verifyFirebaseToken, async (req
       purchase => purchase.bundle_id.toString() === bundleId
     );
     
-    if (!hasPurchased) {
-      return res.status(403).json({ error: "Bundle not purchased" });
-    }
+    // if (!hasPurchased) {
+    //   return res.status(403).json({ error: "Bundle not purchased" });
+    // }
     
     // Fetch the bundle
     const bundle = await db.collection("bundles").findOne({ 
@@ -310,7 +310,8 @@ app.get("/api/test-questions/:bundleId/:testId", verifyFirebaseToken, async (req
     res.json({
       title: test.test_name,
       questions: formattedQuestions,
-      timeInMinutes: timeInMinutes
+      timeInMinutes: timeInMinutes,
+      purchased: hasPurchased
     });
     
   } catch (error) {

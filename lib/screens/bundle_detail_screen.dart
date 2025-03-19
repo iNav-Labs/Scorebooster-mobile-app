@@ -1,6 +1,7 @@
 // lib/screens/bundle_screen.dart
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,7 +36,7 @@ class _BundleScreenState extends State<BundleScreen> {
   Future<void> _fetchTestQuestions(String testId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('access_token');
+      final token = prefs.getString('uid');
 
       if (token == null) {
         setState(() {
@@ -43,6 +44,7 @@ class _BundleScreenState extends State<BundleScreen> {
         });
         return;
       }
+      print(testId);
 
       final response = await http.get(
         Uri.parse(
@@ -112,13 +114,16 @@ class _BundleScreenState extends State<BundleScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       setState(() => _isLoading = true);
+      print(widget.course.id);
+      print(prefs.getString('uid'));
 
       final response = await http.get(
         Uri.parse('${Config.baseUrl}api/tests/${widget.course.id}'),
         headers: {
-          'Authorization': 'Bearer ${prefs.getString('access_token')}',
+          'Authorization': 'Bearer ${prefs.getString('uid')}',
         },
       );
+      print(response.body);
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);

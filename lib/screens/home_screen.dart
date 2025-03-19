@@ -98,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final prefs = await SharedPreferences.getInstance();
       final uid = await FirebaseAuth.instance.currentUser!.getIdToken();
+      prefs.setString('uid', uid ?? '');
       final response = await http.get(
         Uri.parse('${Config.baseUrl}api/all-bundles'),
         headers: {

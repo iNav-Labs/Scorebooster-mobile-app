@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io'; // Detect if the platform is Web
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -106,10 +107,11 @@ class _BillingScreenState extends State<BillingScreen> {
         Uri.parse('${Config.baseUrl}api/purchase-bundle'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${prefs.getString('access_token')}',
+          'Authorization': 'Bearer ${prefs.getString('uid')}',
         },
         body: jsonEncode({'bundleId': bundleId}),
       );
+      print(response.body);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(

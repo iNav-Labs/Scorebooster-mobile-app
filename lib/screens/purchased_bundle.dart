@@ -1,6 +1,7 @@
 // lib/screens/purchased_screen.dart
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,9 +33,10 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
       final response = await http.get(
         Uri.parse('${Config.baseUrl}api/purchased-bundles'),
         headers: {
-          'Authorization': 'Bearer ${prefs.getString('access_token')}',
+          'Authorization': 'Bearer ${prefs.getString('uid')}',
         },
       );
+      print(response.body);
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
