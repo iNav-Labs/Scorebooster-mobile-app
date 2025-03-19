@@ -1,8 +1,15 @@
 // lib/screens/purchased_screen.dart
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:scorebooster/screens/bundle_detail_screen.dart';
 import 'package:scorebooster/screens/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:scorebooster/config.dart';
 
 class PurchasedScreen extends StatefulWidget {
   @override
@@ -11,39 +18,60 @@ class PurchasedScreen extends StatefulWidget {
 
 class _PurchasedScreenState extends State<PurchasedScreen> {
   // Sample purchased courses data
-  final List<Course> _purchasedCourses = [
-    Course(
-      id: '1',
-      title: 'JEE mains 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/jee.png',
-      price: 499,
-      // You might want to add additional fields like purchaseDate, progress, etc.
-    ),
-    Course(
-      id: '2',
-      title: 'NEET exam 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/neet.png',
-      price: 499,
-    ),
-    Course(
-      id: '3',
-      title: 'CSE GATE exams 2025',
-      description:
-          'Covering all the concepts of physics and maths and chemistry',
-      imageUrl: 'assets/gate.png',
-      price: 499,
-    ),
-  ];
+  final List<Course> _purchasedCourses = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  Future<void> _fetchPurchasedCourses() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+    final prefs = await SharedPreferences.getInstance();
+
+    try {
+      final response = await http.get(
+        Uri.parse('${Config.baseUrl}api/purchased-bundles'),
+        headers: {
+          'Authorization': 'Bearer ${prefs.getString('uid')}',
+        },
+      );
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _purchasedCourses.clear();
+          _purchasedCourses.addAll(data.map((item) => Course(
+                id: item['id'],
+                title: item['title'],
+                description: item['description'],
+                imageUrl: item['imageUrl'] ?? '',
+                price: (item['price'] ?? 0).toDouble(),
+              )));
+          _filteredCourses = _purchasedCourses;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load courses';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
+  }
 
   List<Course> _filteredCourses = [];
 
   @override
   void initState() {
     super.initState();
+    _fetchPurchasedCourses();
     _filteredCourses = _purchasedCourses;
   }
 
@@ -92,7 +120,7 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
                 children: [
                   Text(
                     'Your Courses (${_filteredCourses.length})',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],
@@ -117,7 +145,7 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
                           SizedBox(height: 16),
                           Text(
                             'No purchased courses found',
-                            style: GoogleFonts.poppins(
+                            style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
                             ),
@@ -190,7 +218,7 @@ class PurchasedCourseCard extends StatelessWidget {
                 children: [
                   Text(
                     course.title,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],
@@ -207,7 +235,7 @@ class PurchasedCourseCard extends StatelessWidget {
                     ),
                     child: Text(
                       'Purchased',
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         color: Colors.green[700],
                         fontSize: 12,
                       ),
@@ -218,7 +246,7 @@ class PurchasedCourseCard extends StatelessWidget {
               SizedBox(height: 8),
               Text(
                 course.description,
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
                   height: 1.4,
@@ -226,39 +254,39 @@ class PurchasedCourseCard extends StatelessWidget {
               ),
               SizedBox(height: 16),
               // Progress indicator
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Progress',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      Text(
-                        '45%', // This would come from your course data
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: 0.45, // This would come from your course data
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                    minHeight: 6,
-                  ),
-                ],
-              ),
+              // Column(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //       children: [
+              //         Text(
+              //           'Progress',
+              //           style: TextStyle(
+              //             fontSize: 14,
+              //             fontWeight: FontWeight.w500,
+              //             color: Colors.grey[700],
+              //           ),
+              //         ),
+              //         Text(
+              //           '45%', // This would come from your course data
+              //           style: TextStyle(
+              //             fontSize: 14,
+              //             fontWeight: FontWeight.w500,
+              //             color: Colors.grey[700],
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //     SizedBox(height: 8),
+              //     LinearProgressIndicator(
+              //       value: 0.45, // This would come from your course data
+              //       backgroundColor: Colors.grey[200],
+              //       valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+              //       minHeight: 6,
+              //     ),
+              //   ],
+              // ),
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -270,7 +298,7 @@ class PurchasedCourseCard extends StatelessWidget {
                       SizedBox(width: 4),
                       Text(
                         'Last accessed: 2 days ago', // This would come from your course data
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
                         ),
@@ -281,13 +309,13 @@ class PurchasedCourseCard extends StatelessWidget {
                     onPressed: onTap,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
-                      textStyle: GoogleFonts.poppins(fontSize: 14),
+                      textStyle: TextStyle(fontSize: 14),
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
                     child: Text(
                       'Continue Learning',
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         fontSize: 12,
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
@@ -319,7 +347,7 @@ class CustomSearchBar extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+        hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
         prefixIcon: Icon(Icons.search, color: Colors.grey),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:scorebooster/screens/home_screen.dart';
 
 class PaymentSplashScreen extends StatefulWidget {
+  const PaymentSplashScreen({super.key});
+
   @override
   _PaymentSplashScreenState createState() => _PaymentSplashScreenState();
 }
@@ -10,7 +12,7 @@ class _PaymentSplashScreenState extends State<PaymentSplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 1), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()),

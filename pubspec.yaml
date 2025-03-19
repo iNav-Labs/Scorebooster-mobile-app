@@ -56,6 +56,9 @@ dependencies:
   http: ^1.2.2
   url_launcher: ^6.3.1
   provider: ^6.1.2
+  font_awesome_flutter: ^10.8.0
+  razorpay_flutter: ^1.4.0
+  razorpay_web: ^2.0.2
   
 
 dev_dependencies:

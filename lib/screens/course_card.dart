@@ -46,7 +46,7 @@ class CourseCard extends StatelessWidget {
             children: [
               Text(
                 course.title,
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   // Use Poppins for the title
                   fontSize: 18, // Slightly larger title
                   fontWeight: FontWeight.w600, // Semi-bold
@@ -56,7 +56,7 @@ class CourseCard extends StatelessWidget {
               SizedBox(height: 12), // Increased spacing
               Text(
                 course.description,
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   // Use Poppins for description
                   fontSize: 12,
                   color: Colors.grey[600],
@@ -70,7 +70,7 @@ class CourseCard extends StatelessWidget {
                 children: [
                   Text(
                     'Rs. ${course.price}',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.orange,
@@ -89,7 +89,7 @@ class CourseCard extends StatelessWidget {
                       backgroundColor: Colors.orange,
                       padding: EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12), // Adjusted padding
-                      textStyle: GoogleFonts.poppins(
+                      textStyle: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),

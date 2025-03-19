@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:scorebooster/backend_apis/google_signin.dart';
 import 'package:scorebooster/screens/login_screen.dart'; // Ensure this is your login screen
 import 'package:scorebooster/widgets/general/loader.dart';
 import 'firebase_options.dart';
@@ -30,32 +29,32 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Score Booster',
-      home: FutureBuilder<bool>(
-        future: AuthService().isUserRegistered(),
-        builder: (context, snapshot) {
-          if (kDebugMode) {
-            print("FutureBuilder state: ${snapshot.connectionState}");
-          }
-          if (kDebugMode) {
-            print("FutureBuilder data: ${snapshot.data}");
-          }
+      // home: FutureBuilder<bool>(
+      //   future: AuthService().isUserRegistered(),
+      //   builder: (context, snapshot) {
+      //     if (kDebugMode) {
+      //       print("FutureBuilder state: ${snapshot.connectionState}");
+      //     }
+      //     if (kDebugMode) {
+      //       print("FutureBuilder data: ${snapshot.data}");
+      //     }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            if (kDebugMode) {
-              print("FutureBuilder is waiting...");
-            }
-            return Scaffold(
-              body: Center(child: CustomLoader()),
-            );
-          }
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       if (kDebugMode) {
+      //         print("FutureBuilder is waiting...");
+      //       }
+      //       return Scaffold(
+      //         body: Center(child: CustomLoader()),
+      //       );
+      //     }
 
-          // Always navigate to LoginScreen first
-          if (kDebugMode) {
-            print("Navigating to LoginScreen");
-          }
-          return const LoginScreen();
-        },
-      ),
+      //     // Always navigate to LoginScreen first
+      //     if (kDebugMode) {
+      //       print("Navigating to LoginScreen");
+      //     }
+      //     return const LoginScreen();
+      //   },
+      home: const LoginScreen(),
     );
   }
 }

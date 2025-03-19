@@ -61,7 +61,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               const SizedBox(height: 20),
               Text(
                 'Admin Login',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -72,7 +72,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: GoogleFonts.poppins(color: Colors.white70),
+                  labelStyle: TextStyle(color: Colors.white70),
                   border: OutlineInputBorder(),
                   focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.white),
@@ -82,7 +82,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                   prefixIcon: const Icon(Icons.person, color: Colors.white70),
                 ),
-                style: GoogleFonts.poppins(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -90,7 +90,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: GoogleFonts.poppins(color: Colors.white70),
+                  labelStyle: TextStyle(color: Colors.white70),
                   border: const OutlineInputBorder(),
                   focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.white),
@@ -100,7 +100,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                   prefixIcon: const Icon(Icons.lock, color: Colors.white70),
                 ),
-                style: GoogleFonts.poppins(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 30),
               ElevatedButton(
@@ -109,7 +109,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   foregroundColor: Colors.orange,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  textStyle: GoogleFonts.poppins(fontSize: 18),
+                  textStyle: TextStyle(fontSize: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

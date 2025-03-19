@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scorebooster/screens/login_screen.dart';
 
@@ -40,7 +41,9 @@ class ProfileScreen extends StatelessWidget {
             ),
             const Spacer(),
             ElevatedButton(
+              // Handle firebase logout
               onPressed: () {
+                FirebaseAuth.instance.signOut();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => LoginScreen()),

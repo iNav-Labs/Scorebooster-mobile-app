@@ -226,9 +226,9 @@ app.get("/api/tests/:bundleId", verifyFirebaseToken, async (req, res) => {
       purchase => purchase.bundle_id.toString() === bundleId
     );
     
-    if (!hasPurchased) {
-      return res.status(403).json({ error: "Bundle not purchased" });
-    }
+    // if (!hasPurchased) {
+    //   return res.status(403).json({ error: "Bundle not purchased" });
+    // }
     
     // Fetch the bundle
     const bundle = await db.collection("bundles").findOne({ 
@@ -310,11 +310,64 @@ app.get("/api/test-questions/:bundleId/:testId", verifyFirebaseToken, async (req
     res.json({
       title: test.test_name,
       questions: formattedQuestions,
-      timeInMinutes: timeInMinutes
+      timeInMinutes: timeInMinutes,
+      purchased: hasPurchased
     });
     
   } catch (error) {
     console.error("Error fetching test questions:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// save the submission marks
+app.post("/api/save-submission", verifyFirebaseToken, async (req, res) => {
+  try {
+    const userData = req.user;
+    const testData = req.body;
+    const marks = testData.marks;
+    const totalMarks = testData.totalMarks;
+    const percentage = (marks / totalMarks) * 100;
+
+    // Save the submission
+    const submission = {
+      user_id: userData.uid,
+      email: userData.email,
+      test_id: new ObjectId(testData.test_id),
+      marks: marks,
+      totalMarks: totalMarks,
+      percentage: percentage,
+      submitted_at: new Date(),
+    };
+
+    const result = await db.collection("submissions").insertOne(submission);
+
+    res.json({
+      message: "Test submitted successfully",
+      submission_id: result.insertedId.toString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get all submissions
+app.get("/api/all-submissions", verifyFirebaseToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const submissions = await db
+      .collection("submissions")
+      .find({ user_id: userId })
+      .toArray();
+
+    // Convert ObjectIds to strings
+    submissions.forEach((submission) => {
+      submission._id = submission._id.toString();
+      submission.test_id = submission.test_id.toString();
+    });
+
+    res.json(submissions);
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

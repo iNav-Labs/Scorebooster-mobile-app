@@ -1,7 +1,6 @@
 // profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:scorebooster/backend_apis/google_signin.dart';
 import 'package:scorebooster/screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +14,6 @@ class ProfileStudent extends StatefulWidget {
 
 class _ProfileStudentState extends State<ProfileStudent> {
   String _userName = 'Student Name'; // Default name
-  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -40,7 +38,7 @@ class _ProfileStudentState extends State<ProfileStudent> {
 
     // Sign out from Google, if signed in with Google
     // ignore: use_build_context_synchronously
-    _authService.logout(context);
+    // _authService.logout(context);
     // Navigate to LoginScreen and remove all previous routes
     Navigator.pushReplacement(
       // ignore: use_build_context_synchronously
@@ -95,7 +93,7 @@ class _ProfileStudentState extends State<ProfileStudent> {
                     SizedBox(height: 16),
                     Text(
                       _userName,
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey[800],
@@ -145,7 +143,7 @@ class _ProfileStudentState extends State<ProfileStudent> {
                         backgroundColor: Colors.orange,
                         padding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                        textStyle: GoogleFonts.poppins(
+                        textStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -188,14 +186,14 @@ class _ProfileStudentState extends State<ProfileStudent> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
                     ),
                   ),
                   Text(
                     value,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],

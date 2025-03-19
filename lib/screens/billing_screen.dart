@@ -1,12 +1,154 @@
+import 'dart:convert';
+import 'dart:io'; // Detect if the platform is Web
+import 'dart:async'; // Add this for Zone operations
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:scorebooster/config.dart';
 import 'package:scorebooster/screens/home_screen.dart';
 import 'package:scorebooster/screens/payment_splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class BillingScreen extends StatelessWidget {
+import 'package:razorpay_flutter/razorpay_flutter.dart'
+    if (dart.library.html) 'package:razorpay_web/razorpay_web.dart';
+
+class BillingScreen extends StatefulWidget {
   final Course course;
 
-  const BillingScreen({required this.course});
+  const BillingScreen({super.key, required this.course});
+
+  @override
+  State<BillingScreen> createState() => _BillingScreenState();
+}
+
+class _BillingScreenState extends State<BillingScreen> {
+  late dynamic _razorpay; // Use dynamic to support both packages
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (kIsWeb) {
+      debugPrint("Using Razorpay Web");
+      _razorpay = Razorpay();
+    } else {
+      debugPrint("Using Razorpay Flutter");
+      _razorpay = Razorpay();
+    }
+
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    debugPrint("Payment successful: ${response.paymentId}");
+    // Wrap in Zone.current.run to avoid zone mismatch
+    Zone.current.run(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text("Payment successful! Order ID: ${response.paymentId}")),
+      );
+
+      purchaseBundle(widget.course.id);
+
+      // Navigate to PaymentSplashScreen after successful payment
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PaymentSplashScreen()),
+      );
+    });
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    debugPrint("Payment failed: ${response.message}");
+    // Wrap in Zone.current.run to avoid zone mismatch
+    Zone.current.run(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment failed: ${response.message}")),
+      );
+    });
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    debugPrint("External wallet selected: ${response.walletName}");
+    // Wrap in Zone.current.run to avoid zone mismatch
+    Zone.current.run(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("External wallet selected: ${response.walletName}")),
+      );
+    });
+  }
+
+  void startPayment() {
+    var options = {
+      'key': 'rzp_test_QiBLpEEa6ZlUld', // Replace with actual Razorpay key
+      'amount': widget.course.price * 100, // Convert to paise
+      'currency': 'INR',
+      'name': 'ScoreBooster',
+      'description': widget.course.title,
+      'prefill': {
+        'contact': '9876543210',
+        'email': 'user@example.com',
+      },
+      'theme': {'color': '#FF8C00'}
+    };
+
+    debugPrint("Attempting to open Razorpay with options: $options");
+
+    try {
+      _razorpay.open(options);
+      debugPrint("Razorpay checkout opened successfully.");
+    } catch (e) {
+      debugPrint("Error opening Razorpay: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment Error: ${e.toString()}")),
+      );
+    }
+  }
+
+  Future<void> purchaseBundle(String bundleId) async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.baseUrl}api/purchase-bundle'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${prefs.getString('uid')}',
+        },
+        body: jsonEncode({'bundleId': bundleId}),
+      );
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Bundle purchased successfully!')),
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorData['error'] ?? 'Purchase failed')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    if (!kIsWeb) {
+      _razorpay.clear(); // Clear listeners only for mobile
+      debugPrint("Razorpay instance cleared.");
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +165,7 @@ class BillingScreen extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      backgroundColor:
-          Colors.grey[100], // A light background for the whole screen
+      backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Container(
@@ -45,7 +186,7 @@ class BillingScreen extends StatelessWidget {
             children: [
               Text(
                 'Order Summary',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[800],
@@ -57,35 +198,34 @@ class BillingScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Course:',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
                     ),
                   ),
                   Text(
-                    course.title,
-                    style: GoogleFonts.poppins(
+                    widget.course.title,
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
-
               SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Price:',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
                     ),
                   ),
                   Text(
-                    'Rs. ${course.price}',
-                    style: GoogleFonts.poppins(
+                    'Rs. ${widget.course.price}',
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.orange,
@@ -95,61 +235,20 @@ class BillingScreen extends StatelessWidget {
               ),
               SizedBox(height: 24),
               Divider(color: Colors.grey[300], thickness: 1),
-              SizedBox(height: 24),
-              Text(
-                'Payment Method Accepted',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
-                ),
-              ),
-              SizedBox(height: 16),
-              // Add your payment method selection UI here (e.g., radio buttons for different payment options)
-              // For now, let's just add a placeholder:
-              ListTile(
-                leading: Icon(Icons.payment, color: Colors.orange),
-                title: Text(
-                  'Credit/Debit Card',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                // You can add onTap functionality to handle payment method selection
-              ),
-              ListTile(
-                leading:
-                    Icon(Icons.account_balance_wallet, color: Colors.orange),
-                title: Text(
-                  'UPI',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                // You can add onTap functionality to handle payment method selection
-              ),
-              ListTile(
-                leading:
-                    Icon(Icons.account_balance_wallet, color: Colors.orange),
-                title: Text(
-                  'Net Banking',
-                  style: GoogleFonts.poppins(fontSize: 16),
-                ),
-                // You can add onTap functionality to handle payment method selection
-              ),
               SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    print('Purchased');
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PaymentSplashScreen()),
-                    );
+                    startPayment();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    textStyle: GoogleFonts.poppins(
-                        fontSize: 18, fontWeight: FontWeight.w600),
+                    textStyle: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
