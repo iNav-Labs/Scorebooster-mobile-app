@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io'; // Detect if the platform is Web
+import 'dart:async'; // Add this for Zone operations
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,33 +45,43 @@ class _BillingScreenState extends State<BillingScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     debugPrint("Payment successful: ${response.paymentId}");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text("Payment successful! Order ID: ${response.paymentId}")),
-    );
+    // Wrap in Zone.current.run to avoid zone mismatch
+    Zone.current.run(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text("Payment successful! Order ID: ${response.paymentId}")),
+      );
 
-    purchaseBundle(widget.course.id);
+      purchaseBundle(widget.course.id);
 
-    // Navigate to PaymentSplashScreen after successful payment
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => PaymentSplashScreen()),
-    );
+      // Navigate to PaymentSplashScreen after successful payment
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PaymentSplashScreen()),
+      );
+    });
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
     debugPrint("Payment failed: ${response.message}");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Payment failed: ${response.message}")),
-    );
+    // Wrap in Zone.current.run to avoid zone mismatch
+    Zone.current.run(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment failed: ${response.message}")),
+      );
+    });
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     debugPrint("External wallet selected: ${response.walletName}");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text("External wallet selected: ${response.walletName}")),
-    );
+    // Wrap in Zone.current.run to avoid zone mismatch
+    Zone.current.run(() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("External wallet selected: ${response.walletName}")),
+      );
+    });
   }
 
   void startPayment() {
@@ -175,7 +186,7 @@ class _BillingScreenState extends State<BillingScreen> {
             children: [
               Text(
                 'Order Summary',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[800],
@@ -187,14 +198,14 @@ class _BillingScreenState extends State<BillingScreen> {
                 children: [
                   Text(
                     'Course:',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
                     ),
                   ),
                   Text(
                     widget.course.title,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -207,14 +218,14 @@ class _BillingScreenState extends State<BillingScreen> {
                 children: [
                   Text(
                     'Price:',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
                     ),
                   ),
                   Text(
                     'Rs. ${widget.course.price}',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.orange,
@@ -234,7 +245,7 @@ class _BillingScreenState extends State<BillingScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    textStyle: GoogleFonts.poppins(
+                    textStyle: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),

@@ -25,7 +25,7 @@ class CustomDivider extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
               text,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 color: Colors.black.withOpacity(0.3),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

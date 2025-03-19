@@ -120,7 +120,7 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
                 children: [
                   Text(
                     'Your Courses (${_filteredCourses.length})',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],
@@ -145,7 +145,7 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
                           SizedBox(height: 16),
                           Text(
                             'No purchased courses found',
-                            style: GoogleFonts.poppins(
+                            style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
                             ),
@@ -218,7 +218,7 @@ class PurchasedCourseCard extends StatelessWidget {
                 children: [
                   Text(
                     course.title,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],
@@ -235,7 +235,7 @@ class PurchasedCourseCard extends StatelessWidget {
                     ),
                     child: Text(
                       'Purchased',
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         color: Colors.green[700],
                         fontSize: 12,
                       ),
@@ -246,7 +246,7 @@ class PurchasedCourseCard extends StatelessWidget {
               SizedBox(height: 8),
               Text(
                 course.description,
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
                   height: 1.4,
@@ -262,7 +262,7 @@ class PurchasedCourseCard extends StatelessWidget {
               //       children: [
               //         Text(
               //           'Progress',
-              //           style: GoogleFonts.poppins(
+              //           style: TextStyle(
               //             fontSize: 14,
               //             fontWeight: FontWeight.w500,
               //             color: Colors.grey[700],
@@ -270,7 +270,7 @@ class PurchasedCourseCard extends StatelessWidget {
               //         ),
               //         Text(
               //           '45%', // This would come from your course data
-              //           style: GoogleFonts.poppins(
+              //           style: TextStyle(
               //             fontSize: 14,
               //             fontWeight: FontWeight.w500,
               //             color: Colors.grey[700],
@@ -298,7 +298,7 @@ class PurchasedCourseCard extends StatelessWidget {
                       SizedBox(width: 4),
                       Text(
                         'Last accessed: 2 days ago', // This would come from your course data
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
                         ),
@@ -309,13 +309,13 @@ class PurchasedCourseCard extends StatelessWidget {
                     onPressed: onTap,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
-                      textStyle: GoogleFonts.poppins(fontSize: 14),
+                      textStyle: TextStyle(fontSize: 14),
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
                     child: Text(
                       'Continue Learning',
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         fontSize: 12,
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
@@ -347,7 +347,7 @@ class CustomSearchBar extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+        hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
         prefixIcon: Icon(Icons.search, color: Colors.grey),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

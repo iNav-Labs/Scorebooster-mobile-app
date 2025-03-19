@@ -314,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 30),
                   Text(
                     'By Signing in you are agreeing to our Terms and Conditions and Policies.',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 10,
                       color: Colors.black.withOpacity(0.5),
                     ),
@@ -337,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               child: Text(
                 'Admin Login',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 12,
                   color: Colors.black,
                   fontWeight: FontWeight.w500,
@@ -389,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _resetPassword,
                 child: Text(
                   'Forgot Password?',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     color: const Color(0xFF6552FF),
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
@@ -419,7 +419,7 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: obscureText,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.poppins(color: Colors.grey),
+        hintStyle: TextStyle(color: Colors.grey),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
@@ -430,7 +430,7 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: const BorderSide(color: Colors.black, width: 2),
         ),
       ),
-      style: GoogleFonts.poppins(
+      style: TextStyle(
         fontWeight: FontWeight.w500,
         color: Colors.black,
         fontSize: 16,
@@ -478,7 +478,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ? CustomLoader()
               : Text(
                   'Login',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -532,7 +532,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ? CustomLoader()
               : Text(
                   'Sign Up',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -559,7 +559,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _isSignUp
             ? 'Already have an account? Log in'
             : 'Don\'t have an account? Sign Up',
-        style: GoogleFonts.poppins(
+        style: TextStyle(
           color: const Color(0xFF6552FF),
           fontWeight: FontWeight.w500,
         ),

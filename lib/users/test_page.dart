@@ -8,12 +8,14 @@ import 'package:scorebooster/users/widgets/timer.dart';
 class QuizPage extends StatefulWidget {
   const QuizPage(
       {super.key,
+      required this.testId,
       required this.questions,
       required this.timeInSeconds,
       required this.title});
   final List<Map<String, dynamic>> questions;
   final int timeInSeconds;
   final String title;
+  final String testId;
 
   @override
   // ignore: library_private_types_in_public_api

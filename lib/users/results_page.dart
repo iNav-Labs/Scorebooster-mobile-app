@@ -39,7 +39,7 @@ class _ResultsPageState extends State<ResultsPage> {
             },
             child: Icon(Icons.arrow_back_ios, color: Colors.black)),
         title: Text('Test Results',
-            style: GoogleFonts.poppins(
+            style: TextStyle(
                 color: Colors.black,
                 fontSize: 20,
                 fontWeight: FontWeight.w700)),
@@ -59,7 +59,7 @@ class _ResultsPageState extends State<ResultsPage> {
                 children: [
                   Text(
                     "Your Score",
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
@@ -67,7 +67,7 @@ class _ResultsPageState extends State<ResultsPage> {
                   ),
                   Text(
                     "$score/$totalQuestions",
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 20,
@@ -118,7 +118,7 @@ class McqResult extends StatelessWidget {
             textAlign: TextAlign.start,
             "${index + 1}. ${question['question']}",
             overflow: TextOverflow.clip,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -170,7 +170,7 @@ class McqResult extends StatelessWidget {
                     children: [
                       Text(
                         "${String.fromCharCode(65 + optionIndex)}.",
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           color: textColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -181,7 +181,7 @@ class McqResult extends StatelessWidget {
                       Expanded(
                         child: Text(
                           option,
-                          style: GoogleFonts.poppins(
+                          style: TextStyle(
                             color: textColor,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -197,7 +197,7 @@ class McqResult extends StatelessWidget {
           if (question['selectedOption'] != question['correctAnswer'])
             Text(
               "Correct Answer: ${question['correctAnswer']}",
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 color: Colors.green,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -207,7 +207,7 @@ class McqResult extends StatelessWidget {
           if (question['selectedOption'] == null)
             Text(
               "Not attempted",
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 color: Colors.red,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,

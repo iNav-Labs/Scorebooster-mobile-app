@@ -53,10 +53,10 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Profile',
           ),
         ],
-        selectedLabelStyle: GoogleFonts.poppins(
-            fontSize: 12), // Apply Poppins to selected label
-        unselectedLabelStyle: GoogleFonts.poppins(
-            fontSize: 12), // Apply Poppins to unselected label
+        selectedLabelStyle:
+            TextStyle(fontSize: 12), // Apply Poppins to selected label
+        unselectedLabelStyle:
+            TextStyle(fontSize: 12), // Apply Poppins to unselected label
       ),
     );
   }

@@ -1,6 +1,5 @@
 // lib/screens/bundle_screen.dart
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +55,7 @@ class _BundleScreenState extends State<BundleScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print(data);
 
         final List<Map<String, dynamic>> formattedQuestions =
             (data['questions'] as List)
@@ -81,6 +81,7 @@ class _BundleScreenState extends State<BundleScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => QuizPage(
+              testId: testId,
               questions: formattedQuestions,
               // timeInSeconds: data['timeInSeconds'],
               timeInSeconds: formattedQuestions.length,
@@ -89,9 +90,10 @@ class _BundleScreenState extends State<BundleScreen> {
           ),
         );
       } else {
+        final errorData = json.decode(response.body);
         setState(() {
           _errorMessage =
-              'Failed to load test questions: ${response.statusCode}';
+              'Failed to load test questions: ${errorData['error']}';
         });
 
         // Show error message to user
@@ -193,7 +195,7 @@ class _BundleScreenState extends State<BundleScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search topics...',
-                hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                hintStyle: TextStyle(color: Colors.grey),
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -213,7 +215,7 @@ class _BundleScreenState extends State<BundleScreen> {
                 children: [
                   Text(
                     'Topics Covered',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[800],
@@ -244,7 +246,7 @@ class _BundleScreenState extends State<BundleScreen> {
                           child: ListTile(
                             title: Text(
                               topic['title']!,
-                              style: GoogleFonts.poppins(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.grey[800],
@@ -252,7 +254,7 @@ class _BundleScreenState extends State<BundleScreen> {
                             ),
                             subtitle: Text(
                               topic['description']!,
-                              style: GoogleFonts.poppins(
+                              style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.grey[600],
                               ),
@@ -278,18 +280,18 @@ class _BundleScreenState extends State<BundleScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Start Test',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         content: Text(
           'Do you want to start the test?',
-          style: GoogleFonts.poppins(),
+          style: TextStyle(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'No',
-              style: GoogleFonts.poppins(),
+              style: TextStyle(),
             ),
           ),
           TextButton(
@@ -310,7 +312,7 @@ class _BundleScreenState extends State<BundleScreen> {
             },
             child: Text(
               'Yes',
-              style: GoogleFonts.poppins(),
+              style: TextStyle(),
             ),
           ),
         ],
