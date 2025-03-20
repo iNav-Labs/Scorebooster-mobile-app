@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -69,6 +63,27 @@ class DefaultFirebaseOptions {
     messagingSenderId: '745532963178',
     projectId: 'scorebooster-c9659',
     storageBucket: 'scorebooster-c9659.firebasestorage.app',
+    iosClientId: '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
+
     iosBundleId: 'com.example.scorebooster',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAB3-z3oRBe0yJbzmlo7ZH8NhAjB7Wd-eE',
+    appId: '1:745532963178:ios:df25e9a45ec276f9538d13',
+    messagingSenderId: '745532963178',
+    projectId: 'scorebooster-c9659',
+    storageBucket: 'scorebooster-c9659.firebasestorage.app',
+    iosClientId: '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
+    iosBundleId: 'com.example.scorebooster',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDurg5E4KCobDkRzegYYZgosn5TxoDDOds',
+    appId: '1:745532963178:web:f0d9219f5c58b572538d13',
+    messagingSenderId: '745532963178',
+    projectId: 'scorebooster-c9659',
+    authDomain: 'scorebooster-c9659.firebaseapp.com',
+    storageBucket: 'scorebooster-c9659.firebasestorage.app',
   );
 }

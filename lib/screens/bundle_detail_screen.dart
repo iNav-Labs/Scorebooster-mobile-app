@@ -83,6 +83,7 @@ class _BundleScreenState extends State<BundleScreen> {
             builder: (context) => QuizPage(
               testId: testId,
               questions: formattedQuestions,
+              bundleId: widget.course.id,
               // timeInSeconds: data['timeInSeconds'],
               timeInSeconds: formattedQuestions.length,
               title: data['title'],

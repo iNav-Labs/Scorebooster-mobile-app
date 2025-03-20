@@ -12,7 +12,14 @@
           "package_name": "com.play.scorebooster"
         }
       },
-      "oauth_client": [],
+
+      "oauth_client": [
+        {
+          "client_id": "745532963178-neao83h47tksqas2u1hmr90742rj431d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+
       "api_key": [
         {
           "current_key": "AIzaSyDydqGI-8Xm1yhD32kJ509AXwZRLgVtA7E"
@@ -20,7 +27,21 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745532963178-neao83h47tksqas2u1hmr90742rj431d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.scorebooster"
+              }
+            }
+          ]
+
         }
       }
     }

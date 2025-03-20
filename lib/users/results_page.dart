@@ -4,8 +4,16 @@ import 'package:scorebooster/screens/home_screen.dart';
 import 'package:scorebooster/users/widgets/divider.dart';
 
 class ResultsPage extends StatefulWidget {
-  const ResultsPage({super.key, required this.questions});
+  const ResultsPage(
+      {super.key,
+      required this.questions,
+      required this.bundleId,
+      required this.testId});
   final List<Map<String, dynamic>> questions;
+
+  final String bundleId;
+
+  final String testId;
 
   @override
   State<ResultsPage> createState() => _ResultsPageState();
