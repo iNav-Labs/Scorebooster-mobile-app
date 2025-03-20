@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "scorebooster-d4dba"
-  }
+    "default": "scorebooster-c9659"
+  },
+  "targets": {},
+  "etags": {}
 }
