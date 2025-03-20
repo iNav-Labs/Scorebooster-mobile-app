@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     projectId: 'scorebooster-c9659',
     storageBucket: 'scorebooster-c9659.firebasestorage.app',
     iosClientId: '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
+
     iosBundleId: 'com.example.scorebooster',
   );
 
