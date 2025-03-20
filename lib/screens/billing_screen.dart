@@ -47,12 +47,6 @@ class _BillingScreenState extends State<BillingScreen> {
     debugPrint("Payment successful: ${response.paymentId}");
     // Wrap in Zone.current.run to avoid zone mismatch
     Zone.current.run(() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text("Payment successful! Order ID: ${response.paymentId}")),
-      );
-
       purchaseBundle(widget.course.id);
 
       // Navigate to PaymentSplashScreen after successful payment

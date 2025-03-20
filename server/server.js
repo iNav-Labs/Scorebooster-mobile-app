@@ -77,10 +77,82 @@ const verifyFirebaseToken = async (req, res, next) => {
 
 // API Routes
 
+// Save test results
+app.post("/api/save-test-results", verifyFirebaseToken, async (req, res) => {
+  try {
+    const { bundleId, testId, score, totalQuestions } = req.body;
+    const userId = req.user.uid;
+    const email = req.user.email;
+    
+    if (!bundleId || !testId || score === undefined || !totalQuestions) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    // Create results document
+    const result = {
+      user_id: userId,
+      email: email,
+      bundle_id: new ObjectId(bundleId),
+      test_id: new ObjectId(testId),
+      score: score,
+      totalQuestions: totalQuestions,
+      percentage: (score / totalQuestions) * 100,
+      completed_at: new Date()
+    };
+    
+    // Save to database
+    const insertResult = await db.collection("test_results").insertOne(result);
+    
+    res.status(200).json({ 
+      message: "Test results saved successfully",
+      resultId: insertResult.insertedId.toString()
+    });
+  } catch (error) {
+    console.error("Error saving test results:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user's test results
+app.get("/api/user-test-results", verifyFirebaseToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    
+    const results = await db.collection("test_results")
+      .find({ user_id: userId })
+      .sort({ completed_at: -1 })
+      .toArray();
+    
+    const formattedResults = results.map(result => ({
+      resultId: result._id.toString(),
+      bundleId: result.bundle_id.toString(),
+      testId: result.test_id.toString(),
+      score: result.score,
+      totalQuestions: result.totalQuestions,
+      percentage: result.percentage,
+      completedAt: result.completed_at
+    }));
+    
+    res.json(formattedResults);
+  } catch (error) {
+    console.error("Error fetching test results:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all bundle details
 app.get("/api/all-bundles", verifyFirebaseToken, async (req, res) => {
   try {
-    const bundles = await db.collection("bundles").find().toArray();
+    // Only fetch required fields instead of entire documents
+    const bundles = await db.collection("bundles")
+      .find({}, { projection: { 
+        name: 1, 
+        description: 1, 
+        imageUrl: 1, 
+        price: 1 
+      }})
+      .toArray();
+      // console.log(bundles);
     
     const formattedBundles = bundles.map(bundle => ({
       id: bundle._id.toString(),
@@ -89,7 +161,6 @@ app.get("/api/all-bundles", verifyFirebaseToken, async (req, res) => {
       imageUrl: bundle.imageUrl || "",
       price: bundle.price,
     }));
-    // console.log(formattedBundles);
     
     res.json(formattedBundles);
   } catch (error) {
@@ -214,8 +285,11 @@ app.get("/api/tests/:bundleId", verifyFirebaseToken, async (req, res) => {
     const { bundleId } = req.params;
     const email = req.user.email;
     
-    // Check if customer exists
-    const customer = await db.collection("customers").findOne({ email });
+    // Check if customer exists with minimal fields
+    const customer = await db.collection("customers").findOne(
+      { email }, 
+      { projection: { purchased_bundles: 1 } }
+    );
     
     if (!customer) {
       return res.status(404).json({ error: "Customer not found" });
@@ -226,14 +300,11 @@ app.get("/api/tests/:bundleId", verifyFirebaseToken, async (req, res) => {
       purchase => purchase.bundle_id.toString() === bundleId
     );
     
-    // if (!hasPurchased) {
-    //   return res.status(403).json({ error: "Bundle not purchased" });
-    // }
-    
-    // Fetch the bundle
-    const bundle = await db.collection("bundles").findOne({ 
-      _id: new ObjectId(bundleId) 
-    });
+    // Fetch only the tests array from the bundle
+    const bundle = await db.collection("bundles").findOne(
+      { _id: new ObjectId(bundleId) },
+      { projection: { tests: 1 } }
+    );
     
     if (!bundle) {
       return res.status(404).json({ error: "Bundle not found" });

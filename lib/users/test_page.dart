@@ -11,11 +11,14 @@ class QuizPage extends StatefulWidget {
       required this.testId,
       required this.questions,
       required this.timeInSeconds,
+      required this.bundleId,
       required this.title});
   final List<Map<String, dynamic>> questions;
   final int timeInSeconds;
   final String title;
   final String testId;
+
+  final dynamic bundleId;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -150,6 +153,8 @@ class _QuizPageState extends State<QuizPage> {
         MaterialPageRoute(
             builder: (context) => ResultsPage(
                   questions: widget.questions,
+                  testId: widget.testId,
+                  bundleId: widget.bundleId,
                 )), // Replace with actual result page
       );
     });
