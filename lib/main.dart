@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:scorebooster/screens/login_screen.dart'; // Ensure this is your login screen
-import 'package:scorebooster/widgets/general/loader.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
