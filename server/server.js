@@ -76,69 +76,102 @@ const verifyFirebaseToken = async (req, res, next) => {
 };
 
 // API Routes
-
-// Save test results
-app.post("/api/save-test-results", verifyFirebaseToken, async (req, res) => {
+// Save or update test results
+app.post("/api/save-test-result", verifyFirebaseToken, async (req, res) => {
   try {
-    const { bundleId, testId, score, totalQuestions } = req.body;
     const userId = req.user.uid;
     const email = req.user.email;
+    const { bundleId, testId, score, bundleName, testName } = req.body;
     
-    if (!bundleId || !testId || score === undefined || !totalQuestions) {
+    if (!bundleId || !testId || score === undefined || !bundleName || !testName) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     
-    // Create results document
-    const result = {
+    // Check if a result already exists for this user, bundle and test
+    const existingResult = await db.collection("test_results").findOne({
       user_id: userId,
-      email: email,
       bundle_id: new ObjectId(bundleId),
-      test_id: new ObjectId(testId),
-      score: score,
-      totalQuestions: totalQuestions,
-      percentage: (score / totalQuestions) * 100,
-      completed_at: new Date()
-    };
-    
-    // Save to database
-    const insertResult = await db.collection("test_results").insertOne(result);
-    
-    res.status(200).json({ 
-      message: "Test results saved successfully",
-      resultId: insertResult.insertedId.toString()
+      test_id: new ObjectId(testId)
     });
+    
+    if (existingResult) {
+      // Update existing result
+      await db.collection("test_results").updateOne(
+        {
+          user_id: userId,
+          bundle_id: new ObjectId(bundleId),
+          test_id: new ObjectId(testId)
+        },
+        {
+          $set: {
+            score: score,
+            updated_at: new Date()
+          }
+        }
+      );
+      
+      res.status(200).json({ 
+        message: "Test result updated successfully",
+        updated: true
+      });
+    } else {
+      // Insert new result
+      const result = await db.collection("test_results").insertOne({
+        user_id: userId,
+        email: email,
+        bundle_id: new ObjectId(bundleId),
+        bundle_name: bundleName,
+        test_id: new ObjectId(testId),
+        test_name: testName,
+        score: score,
+        created_at: new Date(),
+        updated_at: new Date()
+      });
+      
+      res.status(201).json({ 
+        message: "Test result saved successfully",
+        result_id: result.insertedId.toString(),
+        updated: false
+      });
+    }
   } catch (error) {
-    console.error("Error saving test results:", error);
+    console.error("Error saving test result:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get user's test results
+// Get all test results for a user
 app.get("/api/user-test-results", verifyFirebaseToken, async (req, res) => {
   try {
     const userId = req.user.uid;
     
-    const results = await db.collection("test_results")
+    // Find all test results for this user
+    const testResults = await db.collection("test_results")
       .find({ user_id: userId })
-      .sort({ completed_at: -1 })
+      .sort({ updated_at: -1 }) // Sort by most recent first
       .toArray();
+      // console.log("hello")
     
-    const formattedResults = results.map(result => ({
-      resultId: result._id.toString(),
+    // Format the response
+    const formattedResults = testResults.map(result => ({
+      id: result._id.toString(),
       bundleId: result.bundle_id.toString(),
+      bundleName: result.bundle_name,
       testId: result.test_id.toString(),
+      testName: result.test_name,
       score: result.score,
-      totalQuestions: result.totalQuestions,
-      percentage: result.percentage,
-      completedAt: result.completed_at
+      createdAt: result.created_at,
+      updatedAt: result.updated_at
     }));
+    // console.log(formattedResults)
     
     res.json(formattedResults);
   } catch (error) {
-    console.error("Error fetching test results:", error);
+    console.error("Error fetching user test results:", error);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // Get all bundle details
 app.get("/api/all-bundles", verifyFirebaseToken, async (req, res) => {

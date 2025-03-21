@@ -79,6 +79,17 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   void startPayment() {
+    // If price is 0, directly purchase the bundle without Razorpay
+    if (widget.course.price == 0) {
+      purchaseBundle(widget.course.id);
+      // Navigate to PaymentSplashScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PaymentSplashScreen()),
+      );
+      return;
+    }
+
     var options = {
       'key': 'rzp_test_QiBLpEEa6ZlUld', // Replace with actual Razorpay key
       'amount': widget.course.price * 100, // Convert to paise
@@ -218,7 +229,9 @@ class _BillingScreenState extends State<BillingScreen> {
                     ),
                   ),
                   Text(
-                    'Rs. ${widget.course.price}',
+                    widget.course.price == 0
+                        ? 'Free'
+                        : 'Rs. ${widget.course.price}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -248,7 +261,9 @@ class _BillingScreenState extends State<BillingScreen> {
                     ),
                   ),
                   child: Text(
-                    'Submit Payment',
+                    widget.course.price == 0
+                        ? 'Enroll Now (Free)'
+                        : 'Submit Payment',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

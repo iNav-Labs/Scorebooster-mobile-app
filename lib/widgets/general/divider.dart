@@ -1,6 +1,5 @@
 // custom_widgets/custom_divider.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CustomDivider extends StatelessWidget {
   final String text;

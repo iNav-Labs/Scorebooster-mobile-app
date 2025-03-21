@@ -9,7 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:scorebooster/config.dart';
 import 'package:scorebooster/screens/course_card.dart';
 import 'package:scorebooster/screens/profile_screen.dart';
+import 'package:scorebooster/screens/profile_student.dart';
 import 'package:scorebooster/screens/purchased_bundle.dart';
+import 'package:scorebooster/screens/results_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScreen extends StatefulWidget {
@@ -23,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     PurchasedScreen(),
-    ProfileScreen(),
+    ResultsScreen(),
   ];
 
   @override
