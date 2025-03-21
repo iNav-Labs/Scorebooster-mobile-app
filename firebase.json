@@ -8,6 +8,7 @@
           "fileOutput": "android/app/google-services.json"
         }
       },
+
       "dart": {
         "lib/firebase_options.dart": {
           "projectId": "scorebooster-c9659",
@@ -17,6 +18,7 @@
             "macos": "1:745532963178:ios:df25e9a45ec276f9538d13",
             "web": "1:745532963178:web:068be1df0e023b83538d13",
             "windows": "1:745532963178:web:f0d9219f5c58b572538d13"
+
           }
         }
       }

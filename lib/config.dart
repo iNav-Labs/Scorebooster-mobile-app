@@ -7,15 +7,14 @@ class Config {
   // static const String baseUrl = 'https://scorebooster-backend.onrender.com/';
   // static const String baseUrl = 'https://scorebooster-mobile-app.onrender.com/';
 
-  static const String apiKey = 'AIzaSyDNs0SGaEHb7nKA0MHuzktLLyLNh1rwNhA';
-  static const String appId = '1:1058873364957:web:556bbe54cc333229c62634';
+  static const String apiKey = 'AIzaSyDurg5E4KCobDkRzegYYZgosn5TxoDDOds';
+  static const String appId = '1:745532963178:web:068be1df0e023b83538d13';
   static const String clientId =
-      '1058873364957-6kn5eqvb4u63ajogogej22csk077va1h.apps.googleusercontent.com';
-  static const String messagingSenderId = '1058873364957';
-  static const String projectId = 'scorecheck-93b26';
-  static const String authDomain = 'scorecheck-93b26.firebaseapp.com';
-  static const String storageBucket = 'scorecheck-93b26.firebasestorage.app';
-  static const String measurementId = 'G-E4EXQ2Z485';
+      '745532963178-neao83h47tksqas2u1hmr90742rj431d.apps.googleusercontent.com';
+  static const String messagingSenderId = '745532963178';
+  static const String projectId = 'scorebooster-c9659';
+  static const String authDomain = 'scorebooster-c9659.firebaseapp.com';
+  static const String storageBucket = 'scorebooster-c9659.firebasestorage.app';
 
   // Timeout duration for HTTP requests
   static const Duration timeoutDuration = Duration(seconds: 30);
