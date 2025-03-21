@@ -45,7 +45,8 @@ class DefaultFirebaseOptions {
     appId: '1:745532963178:web:068be1df0e023b83538d13',
     messagingSenderId: '745532963178',
     projectId: 'scorebooster-c9659',
-    authDomain: 'scorebooster-c9659.firebaseapp.com',
+    // authDomain: 'scorebooster-c9659.firebaseapp.com',
+    authDomain: 'scoreboostergujrat.com',
     storageBucket: 'scorebooster-c9659.firebasestorage.app',
   );
 
@@ -63,7 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '745532963178',
     projectId: 'scorebooster-c9659',
     storageBucket: 'scorebooster-c9659.firebasestorage.app',
-    iosClientId: '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
+    iosClientId:
+        '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
     iosBundleId: 'com.example.scorebooster',
   );
 
@@ -73,7 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '745532963178',
     projectId: 'scorebooster-c9659',
     storageBucket: 'scorebooster-c9659.firebasestorage.app',
-    iosClientId: '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
+    iosClientId:
+        '745532963178-ung2jvgs7585sukegjed5g801g95dbmb.apps.googleusercontent.com',
     iosBundleId: 'com.example.scorebooster',
   );
 

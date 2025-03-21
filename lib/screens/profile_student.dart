@@ -1,7 +1,7 @@
 // profile_screen.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:scorebooster/screens/home_screen.dart';
+import 'package:scorebooster/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileStudent extends StatefulWidget {
@@ -33,18 +33,18 @@ class _ProfileStudentState extends State<ProfileStudent> {
 
   Future<void> _logout(BuildContext context) async {
     // Clear shared preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
 
     // Sign out from Google, if signed in with Google
     // ignore: use_build_context_synchronously
     // _authService.logout(context);
     // Navigate to LoginScreen and remove all previous routes
-    Navigator.pushReplacement(
-      // ignore: use_build_context_synchronously
+    FirebaseAuth.instance.signOut();
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => MainScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 
   @override
@@ -72,6 +72,7 @@ class _ProfileStudentState extends State<ProfileStudent> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 8,
                       offset: Offset(0, 2),

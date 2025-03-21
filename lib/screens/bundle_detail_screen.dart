@@ -81,6 +81,7 @@ class _BundleScreenState extends State<BundleScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => QuizPage(
+              bundleName: widget.course.title,
               testId: testId,
               questions: formattedQuestions,
               bundleId: widget.course.id,

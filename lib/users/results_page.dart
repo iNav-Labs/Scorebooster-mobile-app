@@ -1,25 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:scorebooster/config.dart';
 import 'package:scorebooster/screens/home_screen.dart';
 import 'package:scorebooster/users/widgets/divider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class ResultsPage extends StatefulWidget {
-  const ResultsPage(
-      {super.key,
-      required this.questions,
-      required this.bundleId,
-      required this.testId});
+  const ResultsPage({
+    super.key,
+    required this.questions,
+    required this.bundleId,
+    required this.testId,
+    required this.testName,
+    required this.bundleName,
+  });
   final List<Map<String, dynamic>> questions;
 
   final String bundleId;
 
   final String testId;
 
+  final String bundleName;
+
+  final String testName;
+
   @override
   State<ResultsPage> createState() => _ResultsPageState();
 }
 
 class _ResultsPageState extends State<ResultsPage> {
+  bool _isSaving = false;
+  bool _saveSuccessful = false;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _saveTestResult();
+  }
+
   int _calculateScore() {
     int correctAnswers = 0;
     for (var question in widget.questions) {
@@ -28,6 +49,67 @@ class _ResultsPageState extends State<ResultsPage> {
       }
     }
     return correctAnswers;
+  }
+
+  Future<void> _saveTestResult() async {
+    if (_isSaving) return;
+
+    setState(() {
+      _isSaving = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Get the ID token from Firebase
+      final idToken = await user.getIdToken();
+
+      final score = _calculateScore();
+      final totalQuestions = widget.questions.length;
+      final scoreValue = '$score/$totalQuestions';
+
+      final response = await http.post(
+        Uri.parse('${Config.baseUrl}api/save-test-result'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: jsonEncode({
+          'bundleId': widget.bundleId,
+          'testId': widget.testId,
+          'score': score,
+          'bundleName': widget.bundleName,
+          'testName': widget.testName,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          _saveSuccessful = true;
+        });
+        if (kDebugMode) {
+          print('Test result saved successfully');
+          print(response.body);
+        }
+      } else {
+        throw Exception('Failed to save test result: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      if (kDebugMode) {
+        print('Error saving test result: $e');
+      }
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
   }
 
   @override
@@ -62,25 +144,85 @@ class _ResultsPageState extends State<ResultsPage> {
               ),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
               margin: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  Text(
-                    "Your Score",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 20,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Your Score",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        "$score/$totalQuestions",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "$score/$totalQuestions",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
+                  if (_isSaving)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 15,
+                            height: 15,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "Saving result...",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  if (_saveSuccessful && !_isSaving)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle,
+                              color: Colors.white, size: 15),
+                          SizedBox(width: 5),
+                          Text(
+                            "Result saved",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_errorMessage.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error, color: Colors.white, size: 15),
+                          SizedBox(width: 5),
+                          Flexible(
+                            child: Text(
+                              "Failed to save result",
+                              style: TextStyle(color: Colors.white),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
